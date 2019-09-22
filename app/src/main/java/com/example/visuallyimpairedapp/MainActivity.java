@@ -1,8 +1,24 @@
 package com.example.visuallyimpairedapp;
 
+import android.graphics.Bitmap;
+import android.os.Bundle;
+import android.widget.Button;
+import android.graphics.Bitmap;
+import android.graphics.Bitmap;
+import android.os.Bundle;
+import android.util.Log;
+import android.util.Pair;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
+
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.firebase.ml.vision.text.FirebaseVisionTextRecognizer;
 import com.wonderkiln.camerakit.CameraView;
 import com.wonderkiln.camerakit.CameraKitEvent;
 import com.wonderkiln.camerakit.CameraKitImage;
@@ -16,6 +32,8 @@ import com.wonderkiln.camerakit.CameraKit;
 import com.wonderkiln.camerakit.CameraKitError;
 import com.wonderkiln.camerakit.CameraKitEvent;
 import com.wonderkiln.camerakit.CameraKitEventListener;
+import com.example.visuallyimpairedapp.GraphicUtils.GraphicOverlay;
+import com.example.visuallyimpairedapp.GraphicUtils.TextGraphic;
 import com.wonderkiln.camerakit.CameraKitImage;
 import com.wonderkiln.camerakit.CameraKitVideo;
 import com.wonderkiln.camerakit.CameraView;
@@ -23,17 +41,9 @@ import com.wonderkiln.camerakit.CameraKit;
 import com.wonderkiln.camerakit.CameraKitError;
 import com.wonderkiln.camerakit.CameraView;
 import com.wonderkiln.camerakit.CameraKitEventListener;
+import com.example.visuallyimpairedapp.GraphicUtils.GraphicOverlay.Graphic;
 
-import android.os.Bundle;
-import android.widget.Button;
-import android.graphics.Bitmap;
-import android.graphics.Bitmap;
-import android.os.Bundle;
-import android.util.Log;
-import android.util.Pair;
-import android.view.View;
-import android.widget.Button;
-import android.widget.ImageView;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -42,6 +52,8 @@ public class MainActivity extends AppCompatActivity {
 
     @BindView(R.id.camView) CameraView mCameraView;
     @BindView(R.id.cameraBtn) Button mCameraButton;
+    @BindView(R.id.graphic_overlay) GraphicOverlay mGraphicOverlay;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,9 +73,10 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onImage(CameraKitImage cameraKitImage) {
-
                 Bitmap bitmap = cameraKitImage.getBitmap();
                 bitmap = Bitmap.createScaledBitmap(bitmap, mCameraView.getWidth(), mCameraView.getHeight(), false);
+                mCameraView.stop();
+                runTextRecognition(bitmap);
             }
 
             @Override
@@ -75,10 +88,54 @@ public class MainActivity extends AppCompatActivity {
         mCameraButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mGraphicOverlay.clear();
+                mCameraView.start();
                 mCameraView.captureImage();
             }
         });
 
+    }
+
+    private void runTextRecognition(Bitmap bitmap) {
+        FirebaseVisionImage image = FirebaseVisionImage.fromBitmap(bitmap);
+        FirebaseVisionTextRecognizer detector = FirebaseVision.getInstance()
+                .getOnDeviceTextRecognizer();
+        detector.processImage(image)
+                .addOnSuccessListener(
+                        new OnSuccessListener<FirebaseVisionText>() {
+                            @Override
+                            public void onSuccess(FirebaseVisionText texts) {
+                                processTextRecognitionResult(texts);
+                            }
+                        })
+                .addOnFailureListener(
+                        new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                // Task failed with an exception
+                                e.printStackTrace();
+                            }
+                        });
+    }
+
+    private void processTextRecognitionResult(FirebaseVisionText texts) {
+        List<FirebaseVisionText.TextBlock> blocks = texts.getTextBlocks();
+        if (blocks.size() == 0) {
+            Log.d("TAG", "No text found");
+            return;
+        }
+        mGraphicOverlay.clear();
+        for (int i = 0; i < blocks.size(); i++) {
+            List<FirebaseVisionText.Line> lines = blocks.get(i).getLines();
+            for (int j = 0; j < lines.size(); j++) {
+                List<FirebaseVisionText.Element> elements = lines.get(j).getElements();
+                for (int k = 0; k < elements.size(); k++) {
+                    GraphicOverlay.Graphic textGraphic = new TextGraphic(mGraphicOverlay, elements.get(k));
+                    mGraphicOverlay.add(textGraphic);
+
+                }
+            }
+        }
     }
 
     @Override
@@ -86,11 +143,11 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         mCameraView.start();
     }
+
     @Override
     public void onPause() {
         mCameraView.stop();
         super.onPause();
     }
-
 
 }
