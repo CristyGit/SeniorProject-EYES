@@ -1,5 +1,7 @@
 package com.example.myapp;
 
+import android.app.ProgressDialog;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -7,8 +9,10 @@ import com.wonderkiln.camerakit.CameraView;
 import android.graphics.Bitmap;
 import android.speech.tts.TextToSpeech;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.MenuItem;
 import android.widget.Button;
+import com.google.gson.Gson;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -17,6 +21,11 @@ import android.util.Pair;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Locale;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -24,6 +33,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import android.speech.tts.TextToSpeech;
+import android.widget.TextView;
+import android.widget.Toast;
+
 import com.google.firebase.ml.vision.text.FirebaseVisionTextRecognizer;
 import com.wonderkiln.camerakit.CameraView;
 import com.wonderkiln.camerakit.CameraKitEvent;
@@ -48,6 +60,12 @@ import com.wonderkiln.camerakit.CameraKitEventListener;
 import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import edmt.dev.edmtdevcognitivevision.Contract.AnalysisResult;
+import edmt.dev.edmtdevcognitivevision.Contract.Caption;
+import edmt.dev.edmtdevcognitivevision.Rest.VisionServiceException;
+import edmt.dev.edmtdevcognitivevision.VisionServiceClient;
+import edmt.dev.edmtdevcognitivevision.VisionServiceRestClient;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -59,13 +77,20 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.camView) CameraView mCameraView;
     @BindView(R.id.cameraBtn) Button mCameraButton;
 
+    private final String API_KEY = "e142c9270906485a9dc505c268ffa409";
+    private final String API_LINK = "https://visuallyimpairedapp.cognitiveservices.azure.com/vision/v1.0";
     private TextToSpeech textToSpeech;
+    private TextView txtResult;
+
+    VisionServiceClient visionServiceClient = new VisionServiceRestClient(API_KEY,API_LINK);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+
+        txtResult = (TextView)findViewById(R.id.txt_result);
 
         BottomNavigationView navView = findViewById(R.id.nav_view);
         // Passing each menu ID as a set of Ids because each
@@ -77,36 +102,95 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(navView, navController);
 
-//        mCameraView.addCameraKitListener(new CameraKitEventListener() {
-//            @Override
-//            public void onEvent(CameraKitEvent cameraKitEvent) {
-//
-//            }
-//
-//            @Override
-//            public void onError(CameraKitError cameraKitError) {
-//
-//            }
-//
-//            @Override
-//            public void onImage(CameraKitImage cameraKitImage) {
-//                Bitmap bitmap = cameraKitImage.getBitmap();
-//                bitmap = Bitmap.createScaledBitmap(bitmap, mCameraView.getWidth(), mCameraView.getHeight(), false);
-//                mCameraView.stop();
-//                runTextRecognition(bitmap);
-//            }
-//
-//            @Override
-//            public void onVideo(CameraKitVideo cameraKitVideo) {
-//
-//            }
-//        });
-//
+        mCameraView.addCameraKitListener(new CameraKitEventListener() {
+            @Override
+            public void onEvent(CameraKitEvent cameraKitEvent) {
+
+            }
+
+            @Override
+            public void onError(CameraKitError cameraKitError) {
+
+            }
+
+            @Override
+            public void onImage(CameraKitImage cameraKitImage) {
+                Bitmap bitmap = cameraKitImage.getBitmap();
+                bitmap = Bitmap.createScaledBitmap(bitmap, mCameraView.getWidth(), mCameraView.getHeight(), false);
+                mCameraView.stop();
+                //runTextRecognition(bitmap);
+                // Convert Bitmap to ByteArray
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+                final ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
+
+                // Use Async to request API
+                AsyncTask<InputStream,String,String> visionTask = new AsyncTask<InputStream, String, String>() {
+                    ProgressDialog progressDialog = new ProgressDialog(MainActivity.this);
+
+                    @Override
+                    protected void onPreExecute() {progressDialog.show(); }
+
+                    @Override
+                    protected String doInBackground(InputStream... inputStreams) {
+                        try {
+                            publishProgress("Recognizing");
+                            String[] features = {"Description"}; // Get Description from API return result
+                            String[] details = {};
+
+                            AnalysisResult result = visionServiceClient.analyzeImage(inputStreams[0], features, details);
+
+                            String JSONResult = new Gson().toJson(result);
+                            return JSONResult;
+
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } catch (VisionServiceException e) {
+                            e.printStackTrace();
+                        }
+
+                        return null;
+                    }
+
+                    @Override
+                    protected void onPostExecute(String s) {
+                        if (TextUtils.isEmpty(s)) {
+                            Toast.makeText(MainActivity.this, "API return empty result", Toast.LENGTH_SHORT);
+                        } else {
+                            progressDialog.dismiss();
+
+                            AnalysisResult result = new Gson().fromJson(s, AnalysisResult.class);
+                            StringBuilder stringResult = new StringBuilder();
+
+                            for (Caption caption : result.description.captions) {
+                                stringResult.append(caption.text);
+                            }
+                            txtResult.setText(stringResult.toString());
+                        }
+                    }
+
+                    @Override
+                    protected void onProgressUpdate(String... values)
+                    {
+                        progressDialog.setMessage(values[0]);
+                    }
+                };
+
+                visionTask.execute(inputStream);
+            }
+
+            @Override
+            public void onVideo(CameraKitVideo cameraKitVideo) {
+
+            }
+        });
+
         mCameraButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mCameraView.start();
                 mCameraView.captureImage();
+
                 if (textToSpeech != null) {
                     textToSpeech.stop();
                     textToSpeech.shutdown();
