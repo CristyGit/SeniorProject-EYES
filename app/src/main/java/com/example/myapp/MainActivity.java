@@ -165,7 +165,32 @@ public class MainActivity extends AppCompatActivity {
                             for (Caption caption : result.description.captions) {
                                 stringResult.append(caption.text);
                             }
-                            txtResult.setText(stringResult.toString());
+                            String displayText = stringResult.toString();
+                            txtResult.setText(displayText);
+
+                            // text to voice
+                            textToSpeech = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+                                @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+                                @Override
+                                public void onInit(int status) {
+                                    if (status != TextToSpeech.ERROR) {
+                                        int lanResult = textToSpeech.setLanguage(Locale.US);
+                                        if (lanResult == TextToSpeech.LANG_MISSING_DATA ||
+                                                lanResult == TextToSpeech.LANG_NOT_SUPPORTED) {
+                                            Log.e("error", "This Language is not supported");
+                                        } else {
+                                            if(textToSpeech == null || "".equals(textToSpeech)) {
+                                                textToSpeech.speak("No Text Recognized", TextToSpeech.QUEUE_FLUSH, null, TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID);
+                                            }
+                                            else {
+                                                textToSpeech.speak(displayText, TextToSpeech.QUEUE_FLUSH, null, TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID);
+                                            }
+                                        }
+                                    } else {
+                                        Log.e("error", "Initilization Failed!");
+                                    }
+                                }
+                            });
                         }
                     }
 
