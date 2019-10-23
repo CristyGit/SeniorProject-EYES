@@ -115,93 +115,15 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onImage(CameraKitImage cameraKitImage) {
+                // Create bitmap of image taken
                 Bitmap bitmap = cameraKitImage.getBitmap();
                 bitmap = Bitmap.createScaledBitmap(bitmap, mCameraView.getWidth(), mCameraView.getHeight(), false);
+
+                // stop camera meanwhile recognition is happening
                 mCameraView.stop();
                 //runTextRecognition(bitmap);
-                // Convert Bitmap to ByteArray
-                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
-                final ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
+                //runSceneRecognition(bitmap);
 
-                // Use Async to request API
-                AsyncTask<InputStream,String,String> visionTask = new AsyncTask<InputStream, String, String>() {
-                    ProgressDialog progressDialog = new ProgressDialog(MainActivity.this);
-
-                    @Override
-                    protected void onPreExecute() {progressDialog.show(); }
-
-                    @Override
-                    protected String doInBackground(InputStream... inputStreams) {
-                        try {
-                            publishProgress("Recognizing");
-                            String[] features = {"Description"}; // Get Description from API return result
-                            String[] details = {};
-
-                            AnalysisResult result = visionServiceClient.analyzeImage(inputStreams[0], features, details);
-
-                            String JSONResult = new Gson().toJson(result);
-                            return JSONResult;
-
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        } catch (VisionServiceException e) {
-                            e.printStackTrace();
-                        }
-
-                        return null;
-                    }
-
-                    @Override
-                    protected void onPostExecute(String s) {
-                        if (TextUtils.isEmpty(s)) {
-                            Toast.makeText(MainActivity.this, "API return empty result", Toast.LENGTH_SHORT);
-                        } else {
-                            progressDialog.dismiss();
-
-                            AnalysisResult result = new Gson().fromJson(s, AnalysisResult.class);
-                            StringBuilder stringResult = new StringBuilder();
-
-                            for (Caption caption : result.description.captions) {
-                                stringResult.append(caption.text);
-                            }
-                            String displayText = stringResult.toString();
-                            txtResult.setText(displayText);
-
-                            // text to voice
-                            textToSpeech = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
-                                @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-                                @Override
-                                public void onInit(int status) {
-                                    if (status != TextToSpeech.ERROR) {
-                                        int lanResult = textToSpeech.setLanguage(Locale.US);
-                                        if (lanResult == TextToSpeech.LANG_MISSING_DATA ||
-                                                lanResult == TextToSpeech.LANG_NOT_SUPPORTED) {
-                                            Log.e("error", "This Language is not supported");
-                                        } else {
-                                            if(textToSpeech == null || "".equals(textToSpeech)) {
-                                                textToSpeech.speak("No Text Recognized", TextToSpeech.QUEUE_FLUSH, null, TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID);
-                                            }
-                                            else {
-                                                textToSpeech.speak(displayText, TextToSpeech.QUEUE_FLUSH, null, TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID);
-                                            }
-                                        }
-                                    } else {
-                                        Log.e("error", "Initilization Failed!");
-                                    }
-                                }
-                            });
-                        }
-                    }
-
-                    @Override
-                    protected void onProgressUpdate(String... values)
-                    {
-                        progressDialog.setMessage(values[0]);
-                    }
-                };
-
-                visionTask.execute(inputStream);
             }
 
             @Override
@@ -240,6 +162,100 @@ public class MainActivity extends AppCompatActivity {
         super.onPause();
     }
 
+    private void runSceneRecognition(Bitmap bitmap) {
+        // Convert Bitmap to ByteArray
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
+
+        // Use Async to request API
+        AsyncTask<InputStream,String,String> visionTask = new AsyncTask<InputStream, String, String>() {
+            ProgressDialog progressDialog = new ProgressDialog(MainActivity.this);
+
+            @Override
+            protected void onPreExecute() {progressDialog.show(); }
+
+            @Override
+            protected String doInBackground(InputStream... inputStreams) {
+                try {
+                    publishProgress("Recognizing");
+                    String[] features = {"Description"}; // Get Description from API return result
+                    String[] details = {};
+
+                    AnalysisResult result = visionServiceClient.analyzeImage(inputStreams[0], features, details);
+
+                    String JSONResult = new Gson().toJson(result);
+                    return JSONResult;
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (VisionServiceException e) {
+                    e.printStackTrace();
+                }
+
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(String s) {
+                if (TextUtils.isEmpty(s)) {
+                    Toast.makeText(MainActivity.this, "API return empty result", Toast.LENGTH_SHORT);
+                } else {
+                    progressDialog.dismiss();
+
+                    AnalysisResult result = new Gson().fromJson(s, AnalysisResult.class);
+                    StringBuilder stringResult = new StringBuilder();
+
+                    for (Caption caption : result.description.captions) {
+                        stringResult.append(caption.text);
+                    }
+
+                    String displayText = stringResult.toString();
+                    txtResult.setText(displayText);
+
+                    processSceneRecognitionResults(displayText);
+
+                }
+            }
+
+            @Override
+            protected void onProgressUpdate(String... values)
+            {
+                progressDialog.setMessage(values[0]);
+            }
+        };
+
+        visionTask.execute(inputStream);
+    }
+
+    // convert text to speech
+    private void processSceneRecognitionResults(String displayText)
+    {
+        // text to voice
+        textToSpeech = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+            @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+            @Override
+            public void onInit(int status) {
+                if (status != TextToSpeech.ERROR) {
+                    int lanResult = textToSpeech.setLanguage(Locale.US);
+                    if (lanResult == TextToSpeech.LANG_MISSING_DATA ||
+                            lanResult == TextToSpeech.LANG_NOT_SUPPORTED) {
+                        Log.e("error", "This Language is not supported");
+                    } else {
+                        if(textToSpeech == null || "".equals(textToSpeech)) {
+                            textToSpeech.speak("No Text Recognized", TextToSpeech.QUEUE_FLUSH, null, TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID);
+                        }
+                        else {
+                            textToSpeech.speak(displayText, TextToSpeech.QUEUE_FLUSH, null, TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID);
+                        }
+                    }
+                } else {
+                    Log.e("error", "Initilization Failed!");
+                }
+            }
+        });
+    }
+
     private void runTextRecognition(Bitmap bitmap) {
         FirebaseVisionImage image = FirebaseVisionImage.fromBitmap(bitmap);
         FirebaseVisionTextRecognizer detector = FirebaseVision.getInstance()
@@ -260,6 +276,7 @@ public class MainActivity extends AppCompatActivity {
                         });
     }
 
+    // Convert text to speech
     private void processTextRecognitionResult(FirebaseVisionText texts) {
         String resultText = texts.getText(); // all the text
 
