@@ -5,6 +5,11 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.ml.vision.label.FirebaseVisionImageLabel;
+import com.google.firebase.ml.vision.label.FirebaseVisionImageLabeler;
+import com.google.firebase.ml.vision.objects.FirebaseVisionObject;
+import com.google.firebase.ml.vision.objects.FirebaseVisionObjectDetector;
+import com.google.firebase.ml.vision.objects.FirebaseVisionObjectDetectorOptions;
 import com.wonderkiln.camerakit.CameraView;
 import android.graphics.Bitmap;
 import android.speech.tts.TextToSpeech;
@@ -119,10 +124,15 @@ public class MainActivity extends AppCompatActivity {
                 Bitmap bitmap = cameraKitImage.getBitmap();
                 bitmap = Bitmap.createScaledBitmap(bitmap, mCameraView.getWidth(), mCameraView.getHeight(), false);
 
+
+
                 // stop camera meanwhile recognition is happening
                 mCameraView.stop();
                 //runTextRecognition(bitmap);
                 //runSceneRecognition(bitmap);
+                runObjectRecognition(bitmap);
+
+
 
             }
 
@@ -160,6 +170,40 @@ public class MainActivity extends AppCompatActivity {
             textToSpeech.shutdown();
         }
         super.onPause();
+    }
+
+    private void runObjectRecognition(Bitmap bitmap)
+    {
+        FirebaseVisionImage image = FirebaseVisionImage.fromBitmap(bitmap);
+
+        FirebaseVisionImageLabeler labeler = FirebaseVision.getInstance()
+                .getOnDeviceImageLabeler();
+
+        labeler.processImage(image)
+                .addOnSuccessListener(new OnSuccessListener<List<FirebaseVisionImageLabel>>() {
+                    @Override
+                    public void onSuccess(List<FirebaseVisionImageLabel> labels) {
+                        // Task completed successfully
+                        // ...
+                        StringBuilder stringResult = new StringBuilder();
+
+                        for (FirebaseVisionImageLabel label: labels) {
+                            if (label.getConfidence() > 0.8)
+                                stringResult.append(label.getText());
+                        }
+                        String displayText = stringResult.toString();
+                        txtResult.setText(displayText);
+
+
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        // Task failed with an exception
+                        // ...
+                    }
+                });
     }
 
     private void runSceneRecognition(Bitmap bitmap) {
