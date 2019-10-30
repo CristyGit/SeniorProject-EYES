@@ -151,30 +151,22 @@ public class MainActivity extends AppCompatActivity {
                 // stop camera meanwhile recognition is happening
                 mCameraView.stop();
 
-                // Navigation Bar Listener
-//                navView.setOnNavigationItemSelectedListener(
-//                        new BottomNavigationView.OnNavigationItemSelectedListener() {
-//                            @Override
-//                            public boolean onNavigationItemSelected(@NonNull MenuItem item)
-//                            {
-//                                switch (item.getItemId())
-//                                {
-//                                    case R.id.navigation_home: // if item selected is home, then run text recognition
-//                                        runTextRecognition(bitmap);
-//                                        txtResult.setText("Text Recognition");
-//                                        break;
-//                                    case R.id.navigation_dashboard: // if item selected is dashboard, then run scene recognition
-////                                        runSceneRecognition(bitmap);
-//                                        txtResult.setText("Scene Recognition");
-//                                        break;
-//                                    case R.id.navigation_notifications: // if item selected is notifications, then run object recognition
-////                                        runObjectRecognition(bitmap);
-//                                        txtResult.setText("Object Recognition");
-//                                        break;
-//                                }
-//                                return false;
-//                            }
-//                        });
+                // Get selected API
+                int number = navView.getSelectedItemId();
+
+                // Depending on selected feature, we run the separate API
+                switch(number)
+                {
+                    case R.id.navigation_home: // if item selected is home, then run text recognition
+                        runTextRecognition(bitmap);
+                        break;
+                    case R.id.navigation_dashboard: // if item selected is dashboard, then run scene recognition
+                        runSceneRecognition(bitmap);
+                        break;
+                    case R.id.navigation_notifications: // if item selected is notifications, then run object recognition
+                        runObjectRecognition(bitmap);
+                        break;
+                }
             }
 
             @Override
@@ -222,9 +214,7 @@ public class MainActivity extends AppCompatActivity {
                                 stringResult.append(label.getText());
                         }
                         String displayText = stringResult.toString();
-                        txtResult.setText(displayText);
-
-
+                        processTextToSpeechResults(displayText);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -351,7 +341,4 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
-
-
 }
