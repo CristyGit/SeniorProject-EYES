@@ -124,16 +124,30 @@ public class MainActivity extends AppCompatActivity {
                 Bitmap bitmap = cameraKitImage.getBitmap();
                 bitmap = Bitmap.createScaledBitmap(bitmap, mCameraView.getWidth(), mCameraView.getHeight(), false);
 
-
-
                 // stop camera meanwhile recognition is happening
                 mCameraView.stop();
-                //runTextRecognition(bitmap);
-                //runSceneRecognition(bitmap);
-                runObjectRecognition(bitmap);
 
-
-
+                navView.setOnNavigationItemSelectedListener(
+                        new BottomNavigationView.OnNavigationItemSelectedListener() {
+                            @Override
+                            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                                switch (item.getItemId()) {
+                                    case R.id.navigation_home:
+                                        runTextRecognition(bitmap);
+                                        txtResult.setText("Text Recognition");
+                                        break;
+                                    case R.id.navigation_dashboard:
+//                                        runSceneRecognition(bitmap);
+                                        txtResult.setText("Scene Recognition");
+                                        break;
+                                    case R.id.navigation_notifications:
+//                                        runObjectRecognition(bitmap);
+                                        txtResult.setText("Object Recognition");
+                                        break;
+                                }
+                                return false;
+                            }
+                        });
             }
 
             @Override
@@ -323,6 +337,7 @@ public class MainActivity extends AppCompatActivity {
     // Convert text to speech
     private void processTextRecognitionResult(FirebaseVisionText texts) {
         String resultText = texts.getText(); // all the text
+        txtResult.setText(resultText);
 
         textToSpeech = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
             @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
