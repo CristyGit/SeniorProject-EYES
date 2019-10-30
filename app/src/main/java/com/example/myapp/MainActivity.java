@@ -82,21 +82,28 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.camView) CameraView mCameraView;
     @BindView(R.id.cameraBtn) Button mCameraButton;
 
+    //API Key for Microsoft Computer Vision API (Scene Recogntion)
     private final String API_KEY = "e142c9270906485a9dc505c268ffa409";
     private final String API_LINK = "https://visuallyimpairedapp.cognitiveservices.azure.com/vision/v1.0";
+
+    // Creates connection with API
+    VisionServiceClient visionServiceClient = new VisionServiceRestClient(API_KEY,API_LINK);
+
+    // Initializing Components
     private TextToSpeech textToSpeech;
     private TextView txtResult;
 
-    VisionServiceClient visionServiceClient = new VisionServiceRestClient(API_KEY,API_LINK);
-
+    //
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
         txtResult = (TextView)findViewById(R.id.txt_result);
 
+        // Bottom navigation Bar
         BottomNavigationView navView = findViewById(R.id.nav_view);
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
@@ -107,17 +114,34 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(navView, navController);
 
+        // Button Listener
+        mCameraButton.setOnClickListener(new View. OnClickListener() {
+            // When button is pressed, image is capture. It also stops text to speech if available
+            @Override
+            public void onClick(View v)
+            {
+                // Image is taken
+                mCameraView.start();
+                mCameraView.captureImage();
+
+                // Text to speech stops if it is working
+                if (textToSpeech != null)
+                {
+                    textToSpeech.stop();
+                    textToSpeech.shutdown();
+                }
+            }
+        });
+
+        // Camera Listener
         mCameraView.addCameraKitListener(new CameraKitEventListener() {
             @Override
-            public void onEvent(CameraKitEvent cameraKitEvent) {
-
-            }
+            public void onEvent(CameraKitEvent cameraKitEvent) {}
 
             @Override
-            public void onError(CameraKitError cameraKitError) {
+            public void onError(CameraKitError cameraKitError) {}
 
-            }
-
+            // Once image is taken and received, convert it to a bitmap and run the corresponding API
             @Override
             public void onImage(CameraKitImage cameraKitImage) {
                 // Create bitmap of image taken
@@ -127,65 +151,57 @@ public class MainActivity extends AppCompatActivity {
                 // stop camera meanwhile recognition is happening
                 mCameraView.stop();
 
-                navView.setOnNavigationItemSelectedListener(
-                        new BottomNavigationView.OnNavigationItemSelectedListener() {
-                            @Override
-                            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                                switch (item.getItemId()) {
-                                    case R.id.navigation_home:
-                                        runTextRecognition(bitmap);
-                                        txtResult.setText("Text Recognition");
-                                        break;
-                                    case R.id.navigation_dashboard:
-//                                        runSceneRecognition(bitmap);
-                                        txtResult.setText("Scene Recognition");
-                                        break;
-                                    case R.id.navigation_notifications:
-//                                        runObjectRecognition(bitmap);
-                                        txtResult.setText("Object Recognition");
-                                        break;
-                                }
-                                return false;
-                            }
-                        });
+                // Navigation Bar Listener
+//                navView.setOnNavigationItemSelectedListener(
+//                        new BottomNavigationView.OnNavigationItemSelectedListener() {
+//                            @Override
+//                            public boolean onNavigationItemSelected(@NonNull MenuItem item)
+//                            {
+//                                switch (item.getItemId())
+//                                {
+//                                    case R.id.navigation_home: // if item selected is home, then run text recognition
+//                                        runTextRecognition(bitmap);
+//                                        txtResult.setText("Text Recognition");
+//                                        break;
+//                                    case R.id.navigation_dashboard: // if item selected is dashboard, then run scene recognition
+////                                        runSceneRecognition(bitmap);
+//                                        txtResult.setText("Scene Recognition");
+//                                        break;
+//                                    case R.id.navigation_notifications: // if item selected is notifications, then run object recognition
+////                                        runObjectRecognition(bitmap);
+//                                        txtResult.setText("Object Recognition");
+//                                        break;
+//                                }
+//                                return false;
+//                            }
+//                        });
             }
 
             @Override
-            public void onVideo(CameraKitVideo cameraKitVideo) {
-
-            }
-        });
-
-        mCameraButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mCameraView.start();
-                mCameraView.captureImage();
-
-                if (textToSpeech != null) {
-                    textToSpeech.stop();
-                    textToSpeech.shutdown();
-                }
-            }
+            public void onVideo(CameraKitVideo cameraKitVideo) {}
         });
     }
 
     @Override
-    public void onResume() {
+    public void onResume()
+    {
         super.onResume();
         mCameraView.start();
     }
 
     @Override
-    public void onPause() {
+    public void onPause()
+    {
         mCameraView.stop();
-        if(textToSpeech != null){
+        if(textToSpeech != null)
+        {
             textToSpeech.stop();
             textToSpeech.shutdown();
         }
         super.onPause();
     }
 
+    // Google Image Labels API
     private void runObjectRecognition(Bitmap bitmap)
     {
         FirebaseVisionImage image = FirebaseVisionImage.fromBitmap(bitmap);
@@ -220,6 +236,7 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
+    // Microsoft Computer Vision API
     private void runSceneRecognition(Bitmap bitmap) {
         // Convert Bitmap to ByteArray
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -271,7 +288,7 @@ public class MainActivity extends AppCompatActivity {
                     String displayText = stringResult.toString();
                     txtResult.setText(displayText);
 
-                    processSceneRecognitionResults(displayText);
+                    processTextToSpeechResults(displayText);
 
                 }
             }
@@ -286,10 +303,31 @@ public class MainActivity extends AppCompatActivity {
         visionTask.execute(inputStream);
     }
 
-    // convert text to speech
-    private void processSceneRecognitionResults(String displayText)
+    private void runTextRecognition(Bitmap bitmap) {
+        FirebaseVisionImage image = FirebaseVisionImage.fromBitmap(bitmap);
+        FirebaseVisionTextRecognizer detector = FirebaseVision.getInstance()
+                .getOnDeviceTextRecognizer();
+        detector.processImage(image)
+                .addOnSuccessListener(new OnSuccessListener<FirebaseVisionText>() {
+                    @Override
+                    public void onSuccess(FirebaseVisionText texts) {
+                        String resultText = texts.getText();
+                        txtResult.setText(resultText);
+                        processTextToSpeechResults(resultText);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        // Task failed with an exception
+                        e.printStackTrace();
+                    }
+                });
+    }
+
+    // Convert text to speech
+    private void processTextToSpeechResults(String displayText)
     {
-        // text to voice
         textToSpeech = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
             @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
             @Override
@@ -314,53 +352,6 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void runTextRecognition(Bitmap bitmap) {
-        FirebaseVisionImage image = FirebaseVisionImage.fromBitmap(bitmap);
-        FirebaseVisionTextRecognizer detector = FirebaseVision.getInstance()
-                .getOnDeviceTextRecognizer();
-        detector.processImage(image)
-                .addOnSuccessListener(new OnSuccessListener<FirebaseVisionText>() {
-                            @Override
-                            public void onSuccess(FirebaseVisionText texts) {
-                                processTextRecognitionResult(texts);
-                            }
-                        })
-                .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                // Task failed with an exception
-                                e.printStackTrace();
-                            }
-                        });
-    }
 
-    // Convert text to speech
-    private void processTextRecognitionResult(FirebaseVisionText texts) {
-        String resultText = texts.getText(); // all the text
-        txtResult.setText(resultText);
-
-        textToSpeech = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
-            @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-            @Override
-            public void onInit(int status) {
-                if (status != TextToSpeech.ERROR) {
-                    int lanResult = textToSpeech.setLanguage(Locale.US);
-                    if (lanResult == TextToSpeech.LANG_MISSING_DATA ||
-                            lanResult == TextToSpeech.LANG_NOT_SUPPORTED) {
-                        Log.e("error", "This Language is not supported");
-                    } else {
-                        if(textToSpeech == null || "".equals(textToSpeech)) {
-                            textToSpeech.speak("No Text Recognized", TextToSpeech.QUEUE_FLUSH, null, TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID);
-                        }
-                        else {
-                            textToSpeech.speak(resultText, TextToSpeech.QUEUE_FLUSH, null, TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID);
-                        }
-                    }
-                } else {
-                    Log.e("error", "Initilization Failed!");
-                }
-            }
-        });
-    }
 
 }
