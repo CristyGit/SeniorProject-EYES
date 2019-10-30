@@ -289,7 +289,6 @@ public class MainActivity extends AppCompatActivity {
                 progressDialog.setMessage(values[0]);
             }
         };
-
         visionTask.execute(inputStream);
     }
 
