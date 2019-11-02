@@ -24,7 +24,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 // This class allows you to perform background operations and publish results on the UI thread
-// Basically it shows the progress dialog meanwhile scene recognition API is recognizing
+// Basically it shows the progress dialog meanwhile object recognition API is recognizing
 public class ObjectRecognitionTask extends AsyncTask<byte[], String, String>
 {
     // Main Activity Class Object
