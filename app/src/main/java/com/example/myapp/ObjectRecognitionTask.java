@@ -164,6 +164,7 @@ public class ObjectRecognitionTask extends AsyncTask<byte[], String, String>
                 if (stringResult.length() == 0)
                 {
                     stringResult.append("Sorry, I'm not sure what the object is");
+                    textView.setText("Sorry, I'm not sure what the object is");
                 }
 
                 // Build final string
@@ -175,6 +176,7 @@ public class ObjectRecognitionTask extends AsyncTask<byte[], String, String>
             else
             {
                 recognitionText = "No Objects Recognized";
+                textView.setText("No Objects Recognized");
             }
 
             // Sends text to Text to speech
