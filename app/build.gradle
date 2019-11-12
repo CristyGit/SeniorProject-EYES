@@ -16,14 +16,14 @@ android {
             debuggable false
             minifyEnabled true
             shrinkResources true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
             buildConfigField('String', "ApiKey", MyAwesomeApp_ApiKey)
         }
         debug {
             debuggable true
             minifyEnabled true
             shrinkResources true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
             buildConfigField('String', "ApiKey", MyAwesomeApp_ApiKey)
         }
     }
