@@ -1,29 +1,28 @@
-package com.example.myapp;
+package com.example.myapp.ui.text;
+
 import android.os.AsyncTask;
-
-import java.io.BufferedReader;
-import java.io.InputStream;
-
 import android.app.ProgressDialog;
 import android.text.TextUtils;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.myapp.BuildConfig;
+import com.example.myapp.MainActivity;
+import com.example.myapp.R;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import org.apache.commons.io.IOUtils;
-
 import java.io.IOException;
+import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
 // This class allows you to perform background operations and publish results on the UI thread
-// Basically it shows the progress dialog meanwhile object recognition API is recognizing
-public class ColorRecognitionTask extends AsyncTask<byte[], String, String>
+// Basically it shows the progress dialog meanwhile text recognition API is recognizing
+public class TextRecognitionTask extends AsyncTask<byte[], String, String>
 {
     // Main Activity Class Object
     private MainActivity mainActivity;
@@ -33,10 +32,10 @@ public class ColorRecognitionTask extends AsyncTask<byte[], String, String>
     TextView textView;
 
     // API key
-    private final String API_KEY = "e142c9270906485a9dc505c268ffa409";
+    private final String API_KEY = BuildConfig.ApiKey;
 
     // Class Constructor
-    public ColorRecognitionTask(MainActivity mainActivity)
+    public TextRecognitionTask(MainActivity mainActivity)
     {
         this.mainActivity = mainActivity;
         this.progressDialog = new ProgressDialog(mainActivity);
@@ -62,8 +61,8 @@ public class ColorRecognitionTask extends AsyncTask<byte[], String, String>
             // Publish message in progress dialog
             publishProgress("Recognizing");
 
-            // API Url with API type request for Color recognition
-            URL url = new URL("https://eastus.api.cognitive.microsoft.com/vision/v2.0/analyze?visualFeatures=Color");
+            // API Url with API type request for Object recognition
+            URL url = new URL("https://eastus.api.cognitive.microsoft.com/vision/v2.0/ocr");
             // Open a connection
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             // Set the request method to POST
@@ -138,44 +137,42 @@ public class ColorRecognitionTask extends AsyncTask<byte[], String, String>
 
             // Parse String response to a JSON Object
             JsonObject jsonObject = new JsonParser().parse(s).getAsJsonObject();
-
             // String Builder to build final String
             StringBuilder stringResult = new StringBuilder();
             // Creates JSON Array for Json objects
-            JsonObject colorJSONObject = jsonObject.getAsJsonObject("color");
+            JsonArray jsonRegionArray = jsonObject.getAsJsonArray("regions");
 
-            JsonArray colorsJSONArray = colorJSONObject.getAsJsonArray("dominantColors");
-
-            // Check if any colors were recognized
-            if (colorsJSONArray.size() > 0)
+            for (int x = 0; x < jsonRegionArray.size(); x++)
             {
-                // Loop through each object in the array and get the value in it
-                for (int i = 0; i < colorsJSONArray.size(); i++)
+                JsonObject jsonRegion = jsonRegionArray.get(x).getAsJsonObject();
+
+                JsonArray jsonLinesArray = jsonRegion.getAsJsonArray("lines");
+
+                for (int i = 0; i < jsonLinesArray.size(); i++)
                 {
-                    // Append each value to string builder
-                    stringResult.append(colorsJSONArray.get(i).getAsString() + " ");
+                    JsonObject jsonLine = jsonLinesArray.get(i).getAsJsonObject();
+
+                    JsonArray jsonWordsArray = jsonLine.getAsJsonArray("words");
+
+                    for(int j = 0; j < jsonWordsArray.size(); j++)
+                    {
+                        // Append each value to string builder
+                        stringResult.append(jsonWordsArray.get(j).getAsJsonObject().get("text").getAsString() + " ");
+                    }
                 }
-
-                // if nothing was added to the string builder, then display error
-                if (stringResult.length() == 0)
-                {
-                    stringResult.append("Sorry, I'm not sure what the color is");
-                    textView.setText("Sorry, I'm not sure what the color is");
-                }
-
-                // Build final string
-                recognitionText = stringResult.toString();
-
-                // send text to database
-
-                // Set the text to be the built string
-                textView.setText(recognitionText);
             }
-            else
+
+            // if nothing was added to the string builder, then display error
+            if (stringResult.length() == 0)
             {
-                recognitionText = "No colors Recognized";
-                textView.setText("No colors Recognized");
+                stringResult.append("Sorry, I'm not sure what the text is");
             }
+
+            // Build final string
+            recognitionText = stringResult.toString();
+
+            // Set the text to be the built string
+            textView.setText(recognitionText);
 
             // Sends text to Text to speech
             mainActivity.speak(recognitionText);

@@ -6,17 +6,17 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
+import com.example.myapp.ui.color.ColorRecognitionTask;
+import com.example.myapp.ui.object.ObjectRecognitionTask;
+import com.example.myapp.ui.scene.SceneRecognitionTask;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.ml.vision.FirebaseVision;
 import com.google.firebase.ml.vision.common.FirebaseVisionImage;
-import com.google.firebase.ml.vision.label.FirebaseVisionImageLabel;
-import com.google.firebase.ml.vision.label.FirebaseVisionImageLabeler;
 import com.google.firebase.ml.vision.text.FirebaseVisionText;
 import com.google.firebase.ml.vision.text.FirebaseVisionTextRecognizer;
 
 import java.io.ByteArrayOutputStream;
-import java.util.List;
 
 // This class contains runs the API's recognition functions
 public class Recognizer
