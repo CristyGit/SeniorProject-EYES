@@ -16,9 +16,6 @@ import com.example.myapp.R;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.microsoft.projectoxford.vision.VisionServiceClient;
-
-import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
