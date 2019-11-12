@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
         // menu should be considered as top level destinations.
         bottomNavigationView = findViewById(R.id.nav_view);
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.navigation_home, R.id.navigation_dashboard, R.id.navigation_notifications)
+                R.id.navigation_text, R.id.navigation_scene, R.id.navigation_object, R.id.navigation_color)
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
@@ -110,17 +110,21 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
         // Depending on selected option, we run the corresponding API
         switch (number)
         {
-            // if item selected is home, then run text recognition
-            case R.id.navigation_home:
+            // if item selected is text, then run text recognition
+            case R.id.navigation_text:
                 recognizer.runTextRecognition(bitmap);
                 break;
-            // if item selected is dashboard, then run scene recognition
-            case R.id.navigation_dashboard:
+            // if item selected is scene, then run scene recognition
+            case R.id.navigation_scene:
                 recognizer.runSceneRecognition(bitmap);
                 break;
-            // if item selected is notifications, then run object recognition
-            case R.id.navigation_notifications:
+            // if item selected is object, then run object recognition
+            case R.id.navigation_object:
                 recognizer.runObjectRecognition(bitmap);
+                break;
+            // if item selected is notifications, then run object recognition
+            case R.id.navigation_color:
+                recognizer.runColorRecognition(bitmap);
                 break;
         }
     }

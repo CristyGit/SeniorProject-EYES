@@ -45,6 +45,7 @@ public class Recognizer
         textView = mainActivity.findViewById(R.id.txt_result);
     }
 
+    // Google Firebase ML Kit API
     public void runTextRecognition(Bitmap bitmap)
     {
         FirebaseVisionImage image = FirebaseVisionImage.fromBitmap(bitmap);
@@ -57,6 +58,7 @@ public class Recognizer
                     public void onSuccess(FirebaseVisionText texts)
                     {
                         String resultText = texts.getText();
+                        // Save the text to database
                         textView.setText(resultText);
                         mainActivity.speak(resultText);
                     }
@@ -87,6 +89,7 @@ public class Recognizer
 //        // Request API and display progress dialog in UI at the same time
 //        visionTask.execute(outputStream.toByteArray());
 //    }
+
 
     // Google Image Labels API
 //    public void runObjectRecognition(Bitmap bitmap)
@@ -149,6 +152,21 @@ public class Recognizer
 
         // Create an Async task for object recognition
         AsyncTask<byte[], String, String> visionTask = new ObjectRecognitionTask(mainActivity);
+
+        // Execute Async task and send image to task
+        // Request API and display progress dialog in UI at the same time
+        visionTask.execute(outputStream.toByteArray());
+    }
+
+    public void runColorRecognition(Bitmap bitmap)
+    {
+        // Create output stream byte array
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        // Compress given Bitmap to output stream and keep quality 100%
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+
+        // Create an Async task for object recognition
+        AsyncTask<byte[], String, String> visionTask = new ColorRecognitionTask(mainActivity);
 
         // Execute Async task and send image to task
         // Request API and display progress dialog in UI at the same time

@@ -3,23 +3,28 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@+id/navigation_home">
+    app:startDestination="@+id/navigation_text">
 
     <fragment
-        android:id="@+id/navigation_home"
-        android:name="com.example.myapp.ui.home.HomeFragment"
-        android:label="@string/title_home"
-        tools:layout="@layout/fragment_home" />
+        android:id="@+id/navigation_text"
+        android:name="com.example.myapp.ui.text.TextFragment"
+        android:label="@string/title_text"
+        tools:layout="@layout/fragment_text" />
 
     <fragment
-        android:id="@+id/navigation_dashboard"
-        android:name="com.example.myapp.ui.dashboard.DashboardFragment"
-        android:label="@string/title_dashboard"
-        tools:layout="@layout/fragment_dashboard" />
+        android:id="@+id/navigation_scene"
+        android:name="com.example.myapp.ui.scene.SceneFragment"
+        android:label="@string/title_scene"
+        tools:layout="@layout/fragment_scene" />
 
     <fragment
-        android:id="@+id/navigation_notifications"
-        android:name="com.example.myapp.ui.notifications.NotificationsFragment"
-        android:label="@string/title_notifications"
-        tools:layout="@layout/fragment_notifications" />
+        android:id="@+id/navigation_object"
+        android:name="com.example.myapp.ui.object.ObjectFragment"
+        android:label="@string/title_object"
+        tools:layout="@layout/fragment_object" />
+    <fragment
+        android:id="@+id/navigation_color"
+        android:name="com.example.myapp.ui.color.ColorFragment"
+        android:label="@string/title_color"
+        tools:layout="@layout/fragment_color" />
 </navigation>

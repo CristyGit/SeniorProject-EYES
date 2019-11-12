@@ -58,6 +58,7 @@ public class SceneRecognitionTask extends AsyncTask<InputStream, String, String>
             AnalysisResult result = visionServiceClient.analyzeImage(inputStreams[0], features, details);
 
             String JSONResult = new Gson().toJson(result);
+
             return JSONResult;
 
         } catch (IOException e)
@@ -92,6 +93,8 @@ public class SceneRecognitionTask extends AsyncTask<InputStream, String, String>
 
             String displayText = stringResult.toString();
             TextView textView = mainActivity.findViewById(R.id.txt_result);
+
+            // send text to database
             textView.setText(displayText);
 
             mainActivity.speak(displayText);
