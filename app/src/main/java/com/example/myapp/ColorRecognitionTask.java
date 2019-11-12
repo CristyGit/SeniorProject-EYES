@@ -64,7 +64,7 @@ public class ColorRecognitionTask extends AsyncTask<byte[], String, String>
             publishProgress("Recognizing");
 
             // API Url with API type request for Color recognition
-            URL url = new URL(""); ///////////////////////////////
+            URL url = new URL("https://eastus.api.cognitive.microsoft.com/vision/v2.0/analyze?visualFeatures=Color"); ///////////////////////////////
             // Open a connection
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             // Set the request method to POST
@@ -143,21 +143,19 @@ public class ColorRecognitionTask extends AsyncTask<byte[], String, String>
             // String Builder to build final String
             StringBuilder stringResult = new StringBuilder();
             // Creates JSON Array for Json objects
-            JsonArray arr = jsonObject.getAsJsonArray(""); /////////////
+            JsonObject colorJSONObject = jsonObject.getAsJsonObject("color");
+
+            JsonArray colorsJSONArray = colorJSONObject.getAsJsonArray("dominantColors");
 
             // Check if any colors were recognized
-            if (arr.size() > 0)
+            if (colorsJSONArray.size() > 0)
             {
-//                // Loop through each object in the array and get the value in it
-//                for (int i = 0; i < arr.size(); i++)
-//                {
-//                    // Check that confidence level is at least greater than 0.5
-//                    if ((arr.get(i).getAsJsonObject().get("confidence").getAsDouble()) > 0.5)
-//                    {
-//                        // Append each value to string builder
-//                        stringResult.append(arr.get(i).getAsJsonObject().get("object").getAsString() + " ");
-//                    }
-//                }
+                // Loop through each object in the array and get the value in it
+                for (int i = 0; i < colorsJSONArray.size(); i++)
+                {
+                    // Append each value to string builder
+                    stringResult.append(colorsJSONArray.get(i).getAsString() + " ");
+                }
 
                 // if nothing was added to the string builder, then display error
                 if (stringResult.length() == 0)
