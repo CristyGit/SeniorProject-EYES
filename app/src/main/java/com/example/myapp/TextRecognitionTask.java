@@ -18,8 +18,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 // This class allows you to perform background operations and publish results on the UI thread
-// Basically it shows the progress dialog meanwhile object recognition API is recognizing
-public class ObjectRecognitionTask extends AsyncTask<byte[], String, String>
+// Basically it shows the progress dialog meanwhile text recognition API is recognizing
+public class TextRecognitionTask extends AsyncTask<byte[], String, String>
 {
     // Main Activity Class Object
     private MainActivity mainActivity;
@@ -32,7 +32,7 @@ public class ObjectRecognitionTask extends AsyncTask<byte[], String, String>
     private final String API_KEY = "e142c9270906485a9dc505c268ffa409";
 
     // Class Constructor
-    public ObjectRecognitionTask(MainActivity mainActivity)
+    public TextRecognitionTask(MainActivity mainActivity)
     {
         this.mainActivity = mainActivity;
         this.progressDialog = new ProgressDialog(mainActivity);
@@ -59,7 +59,7 @@ public class ObjectRecognitionTask extends AsyncTask<byte[], String, String>
             publishProgress("Recognizing");
 
             // API Url with API type request for Object recognition
-            URL url = new URL("https://eastus.api.cognitive.microsoft.com/vision/v2.0/analyze?visualFeatures=Objects");
+            URL url = new URL("https://eastus.api.cognitive.microsoft.com/vision/v2.0/ocr");
             // Open a connection
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             // Set the request method to POST
@@ -134,46 +134,42 @@ public class ObjectRecognitionTask extends AsyncTask<byte[], String, String>
 
             // Parse String response to a JSON Object
             JsonObject jsonObject = new JsonParser().parse(s).getAsJsonObject();
-
             // String Builder to build final String
             StringBuilder stringResult = new StringBuilder();
             // Creates JSON Array for Json objects
-            JsonArray arr = jsonObject.getAsJsonArray("objects");
+            JsonArray jsonRegionArray = jsonObject.getAsJsonArray("regions");
 
-            // Check if any objects were recognized
-            if (arr.size() > 0)
+            for (int x = 0; x < jsonRegionArray.size(); x++)
             {
-                // Loop through each object in the array and get the value in it
-                for (int i = 0; i < arr.size(); i++)
+                JsonObject jsonRegion = jsonRegionArray.get(x).getAsJsonObject();
+
+                JsonArray jsonLinesArray = jsonRegion.getAsJsonArray("lines");
+
+                for (int i = 0; i < jsonLinesArray.size(); i++)
                 {
-                    // Check that confidence level is at least greater than 0.5
-                    if ((arr.get(i).getAsJsonObject().get("confidence").getAsDouble()) > 0.5)
+                    JsonObject jsonLine = jsonLinesArray.get(i).getAsJsonObject();
+
+                    JsonArray jsonWordsArray = jsonLine.getAsJsonArray("words");
+
+                    for(int j = 0; j < jsonWordsArray.size(); j++)
                     {
                         // Append each value to string builder
-                        stringResult.append(arr.get(i).getAsJsonObject().get("object").getAsString() + " ");
+                        stringResult.append(jsonWordsArray.get(j).getAsJsonObject().get("text").getAsString() + " ");
                     }
                 }
-
-                // if nothing was added to the string builder, then display error
-                if (stringResult.length() == 0)
-                {
-                    stringResult.append("Sorry, I'm not sure what the object is");
-                    textView.setText("Sorry, I'm not sure what the object is");
-                }
-
-                // Build final string
-                recognitionText = stringResult.toString();
-
-                // send text to database
-
-                // Set the text to be the built string
-                textView.setText(recognitionText);
             }
-            else
+
+            // if nothing was added to the string builder, then display error
+            if (stringResult.length() == 0)
             {
-                recognitionText = "No Objects Recognized";
-                textView.setText("No Objects Recognized");
+                stringResult.append("Sorry, I'm not sure what the text is");
             }
+
+            // Build final string
+            recognitionText = stringResult.toString();
+
+            // Set the text to be the built string
+            textView.setText(recognitionText);
 
             // Sends text to Text to speech
             mainActivity.speak(recognitionText);

@@ -15,24 +15,12 @@ import com.google.firebase.ml.vision.label.FirebaseVisionImageLabeler;
 import com.google.firebase.ml.vision.text.FirebaseVisionText;
 import com.google.firebase.ml.vision.text.FirebaseVisionTextRecognizer;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
 import java.util.List;
-
-import edmt.dev.edmtdevcognitivevision.VisionServiceClient;
-import edmt.dev.edmtdevcognitivevision.VisionServiceRestClient;
 
 // This class contains runs the API's recognition functions
 public class Recognizer
 {
-    // API Key and link for Microsoft Computer Vision API
-    private final String API_KEY = "e142c9270906485a9dc505c268ffa409";
-    private final String API_LINK = "https://visuallyimpairedapp.cognitiveservices.azure.com/vision/v1.0";
-
-    // Creates connection with API
-    VisionServiceClient visionServiceClient = new VisionServiceRestClient(API_KEY, API_LINK);
-
     // Initializing UI text view component
     private TextView textView;
     // Initializing Main class object
@@ -75,7 +63,7 @@ public class Recognizer
     }
 
 //    // Microsoft Computer Vision API for Text Recognition
-//    public void runTextRecognition(Bitmap bitmap)
+//    public void runTextRecognition2(Bitmap bitmap)
 //    {
 //        // Create output stream byte array
 //        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -90,9 +78,40 @@ public class Recognizer
 //        visionTask.execute(outputStream.toByteArray());
 //    }
 
+    // Microsoft Computer Vision API for Scene Recognition
+    public void runSceneRecognition(Bitmap bitmap)
+    {
+        // Create output stream byte array
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        // Compress given Bitmap to output stream and keep quality 100%
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
 
-    // Google Image Labels API
-//    public void runObjectRecognition(Bitmap bitmap)
+        // Create an Async task for scene recognition
+        AsyncTask<byte[], String, String> visionTask = new SceneRecognitionTask(mainActivity);
+
+        // Execute Async task and send image to task
+        // Request API and display progress dialog in UI at the same time
+        visionTask.execute(outputStream.toByteArray());
+    }
+
+    // Microsoft Computer Vision API for Object Recognition
+    public void runObjectRecognition(Bitmap bitmap)
+    {
+        // Create output stream byte array
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        // Compress given Bitmap to output stream and keep quality 100%
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+
+        // Create an Async task for object recognition
+        AsyncTask<byte[], String, String> visionTask = new ObjectRecognitionTask(mainActivity);
+
+        // Execute Async task and send image to task
+        // Request API and display progress dialog in UI at the same time
+        visionTask.execute(outputStream.toByteArray());
+    }
+
+//    // Google Image Labels API
+//    public void runObjectRecognition2(Bitmap bitmap)
 //    {
 //        FirebaseVisionImage image = FirebaseVisionImage.fromBitmap(bitmap);
 //
@@ -129,35 +148,7 @@ public class Recognizer
 //                });
 //    }
 
-    // Microsoft Computer Vision API (Separate Github Library) for Scene Recognition
-    public void runSceneRecognition(Bitmap bitmap)
-    {
-        // Convert Bitmap to ByteArray
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
-        final ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
-
-        // Use Async to request API
-        AsyncTask<InputStream, String, String> visionTask = new SceneRecognitionTask(visionServiceClient, mainActivity);
-        visionTask.execute(inputStream);
-    }
-
-    // Microsoft Computer Vision API for Object Recognition
-    public void runObjectRecognition(Bitmap bitmap)
-    {
-        // Create output stream byte array
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        // Compress given Bitmap to output stream and keep quality 100%
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
-
-        // Create an Async task for object recognition
-        AsyncTask<byte[], String, String> visionTask = new ObjectRecognitionTask(mainActivity);
-
-        // Execute Async task and send image to task
-        // Request API and display progress dialog in UI at the same time
-        visionTask.execute(outputStream.toByteArray());
-    }
-
+    // Microsoft Computer Vision API for Color Recognition
     public void runColorRecognition(Bitmap bitmap)
     {
         // Create output stream byte array
@@ -165,7 +156,7 @@ public class Recognizer
         // Compress given Bitmap to output stream and keep quality 100%
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
 
-        // Create an Async task for object recognition
+        // Create an Async task for color recognition
         AsyncTask<byte[], String, String> visionTask = new ColorRecognitionTask(mainActivity);
 
         // Execute Async task and send image to task

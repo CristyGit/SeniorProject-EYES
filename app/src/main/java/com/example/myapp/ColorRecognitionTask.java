@@ -12,7 +12,6 @@ import android.widget.Toast;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.microsoft.projectoxford.vision.VisionServiceClient;
 
 import org.apache.commons.io.IOUtils;
 
@@ -64,7 +63,7 @@ public class ColorRecognitionTask extends AsyncTask<byte[], String, String>
             publishProgress("Recognizing");
 
             // API Url with API type request for Color recognition
-            URL url = new URL("https://eastus.api.cognitive.microsoft.com/vision/v2.0/analyze?visualFeatures=Color"); ///////////////////////////////
+            URL url = new URL("https://eastus.api.cognitive.microsoft.com/vision/v2.0/analyze?visualFeatures=Color");
             // Open a connection
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             // Set the request method to POST
