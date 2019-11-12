@@ -20,4 +20,4 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
-#-dontwarn com.example.myapp;
+-dontwarn com.example.myapp.**
