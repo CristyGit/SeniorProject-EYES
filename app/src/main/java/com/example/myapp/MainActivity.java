@@ -78,17 +78,12 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
             @Override
             public void onClick(View v)
             {
+                if (textToSpeech != null)
+                    textToSpeech.stop();
+
                 // Image is taken
                 cameraView.start();
                 cameraView.captureImage();
-
-                // Text to speech stops if it is working
-//                if (textToSpeech != null)
-//                {
-//                    textToSpeech.stop();
-//                    textToSpeech.shutdown();
-//                }
-                //TODO change condition
             }
         });
     }
