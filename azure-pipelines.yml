@@ -12,8 +12,8 @@ pool:
 steps:
 - task: Gradle@2
   inputs:
-    workingDirectory: '$(system.defaultWorkingDirectory)/Projects/VisuallyImpairedApp'
-    gradleWrapperFile: '$(system.defaultWorkingDirectory)/Projects/VisuallyImpairedApp/gradlew'
+    workingDirectory: 'C:\Users\Cristina Villarroel\OneDrive\Documents\Projects\VisuallyImpairedApp'
+    gradleWrapperFile: 'C:\Users\Cristina Villarroel\OneDrive\Documents\Projects\VisuallyImpairedApp\gradlew'
     gradleOptions: '-Xmx3072m'
     publishJUnitResults: false
     testResultsFiles: '**/TEST-*.xml'
