@@ -62,7 +62,7 @@ public class TextRecognitionTask extends AsyncTask<byte[], String, String>
             publishProgress("Recognizing");
 
             // API Url with API type request for Object recognition
-            URL url = new URL("https://eastus.api.cognitive.microsoft.com/vision/v2.0/ocr");
+            URL url = new URL("https://eastus.api.cognitive.microsoft.com/vision/v2.0/ocr?language=en");
             // Open a connection
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             // Set the request method to POST

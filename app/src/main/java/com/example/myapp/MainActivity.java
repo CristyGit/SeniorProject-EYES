@@ -25,7 +25,6 @@ import com.wonderkiln.camerakit.CameraKitVideo;
 import com.wonderkiln.camerakit.CameraView;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Locale;
@@ -52,12 +51,11 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
         initRecognitionElements();
     }
 
-    // Initialize Main Activity View, Navigation Bar, and Camera
+    // Initialize Main Activity View, Navigation Bar,send button, and Camera.
     private void initUI()
     {
         setContentView(R.layout.activity_main);
         sendButton = findViewById(R.id.send_button);
-
         initNav();
         initCamera();
     }
@@ -65,9 +63,8 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
     // Initialize Navigation Bar
     private void initNav()
     {
-        // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
         bottomNavigationView = findViewById(R.id.nav_view);
+        // Identifying each menu choice
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.navigation_text, R.id.navigation_scene, R.id.navigation_object, R.id.navigation_color)
                 .build();
@@ -76,15 +73,20 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
         NavigationUI.setupWithNavController(bottomNavigationView, navController);
     }
 
-    // Initialize Camera and Button
+    // Initialize Camera and Button. When button is pressed logic
     private void initCamera()
     {
         cameraButton = findViewById(R.id.cameraBtn);
         cameraView = findViewById(R.id.camView);
+
         // Button Listener;
         cameraButton.setOnClickListener(new View.OnClickListener()
         {
-            // When button is pressed, image is capture. It also stops text to speech if available
+            // When button is pressed, image is capture.
+            // It also stops text to speech if available
+            // Removes send button if needed.
+            // Change camera button's text
+            // if color recognition is selected, set flash to on
             @Override
             public void onClick(View v)
             {
@@ -103,13 +105,13 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
                 // Start camera view
                 cameraView.start();
 
+                // if button is stop, change text
                 if (cameraButton.getText().equals("Stop"))
                 {
                     cameraButton.setText("Recognize");
                 }
-                else
+                else // else change it to stop
                 {
-                    // Set camera text
                     cameraButton.setText("Stop");
                 }
 
@@ -129,7 +131,6 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
                     // Capture picture
                     cameraView.captureImage();
                 }
-
             }
         });
     }

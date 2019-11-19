@@ -18,6 +18,7 @@ import androidx.annotation.NonNull;
 import com.example.myapp.ui.color.ColorRecognitionTask;
 import com.example.myapp.ui.object.ObjectRecognitionTask;
 import com.example.myapp.ui.scene.SceneRecognitionTask;
+import com.example.myapp.ui.text.TextRecognitionTask;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -54,7 +55,7 @@ public class Recognizer
     }
 
     // Send Image to Contact Method
-    public void sendImageToContact(Bitmap bitmap, String text) throws IOException
+    public void sendImageToContact(Bitmap bitmap, String text)
     {
         // Save Image
         Uri uri = mainActivity.saveImage(bitmap);
@@ -62,7 +63,7 @@ public class Recognizer
         // Create intent to send image and text recognize to contact of selection
         Intent sendIntent = new Intent(android.content.Intent.ACTION_SEND);
         sendIntent.putExtra(Intent.EXTRA_STREAM, uri);
-        sendIntent.putExtra(Intent.EXTRA_TEXT, "EYES recognition returned: " + text + ". Can you verify this?");
+        sendIntent.putExtra(Intent.EXTRA_TEXT, "EYES recognition returned:\n" + text + ".\nCan you verify this?");
         sendIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         sendIntent.setType("image/png");
 
@@ -72,7 +73,7 @@ public class Recognizer
         mainActivity.startActivity(shareIntent);
     }
 
-    // Google Firebase ML Kit API
+    // Google Firebase ML Kit API (1ST CHOICE)
     public void runTextRecognition(Bitmap bitmap)
     {
         FirebaseVisionImage image = FirebaseVisionImage.fromBitmap(bitmap);
@@ -94,13 +95,7 @@ public class Recognizer
                             @Override
                             public void onClick(View v)
                             {
-                                try
-                                {
-                                    sendImageToContact(bitmap, resultText);
-                                } catch (IOException e)
-                                {
-                                    e.printStackTrace();
-                                }
+                                sendImageToContact(bitmap, resultText);
                             }
                         });
                     }
@@ -116,21 +111,21 @@ public class Recognizer
                 });
     }
 
-//    // Microsoft Computer Vision API for Text Recognition
-//    public void runTextRecognition2(Bitmap bitmap)
-//    {
-//        // Create output stream byte array
-//        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-//        // Compress given Bitmap to output stream and keep quality 100%
-//        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
-//
-//        // Create an Async task for object recognition
-//        AsyncTask<byte[], String, String> visionTask = new TextRecognitionTask(mainActivity);
-//
-//        // Execute Async task and send image to task
-//        // Request API and display progress dialog in UI at the same time
-//        visionTask.execute(outputStream.toByteArray());
-//    }
+    // Microsoft Computer Vision API for Text Recognition (2ND CHOICE)
+    public void runTextRecognition2(Bitmap bitmap)
+    {
+        // Create output stream byte array
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        // Compress given Bitmap to output stream and keep quality 100%
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+
+        // Create an Async task for object recognition
+        AsyncTask<byte[], String, String> visionTask = new TextRecognitionTask(mainActivity);
+
+        // Execute Async task and send image to task
+        // Request API and display progress dialog in UI at the same time
+        visionTask.execute(outputStream.toByteArray());
+    }
 
     // Microsoft Computer Vision API for Scene Recognition
     public void runSceneRecognition(Bitmap bitmap)
