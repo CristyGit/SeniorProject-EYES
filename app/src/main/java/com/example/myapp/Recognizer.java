@@ -56,25 +56,20 @@ public class Recognizer
     // Send Image to Contact Method
     public void sendImageToContact(Bitmap bitmap, String text) throws IOException
     {
-        //Write file
-        String filename = "image.jpe";
-        FileOutputStream stream = mainActivity.openFileOutput(filename, Context.MODE_PRIVATE);
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+        // Save Image
+        Uri uri = mainActivity.saveImage(bitmap);
 
-        //Cleanup
-        stream.close();
-        bitmap.recycle();
+        // Create intent to send image and text recognize to contact of selection
+        Intent sendIntent = new Intent(android.content.Intent.ACTION_SEND);
+        sendIntent.putExtra(Intent.EXTRA_STREAM, uri);
+        sendIntent.putExtra(Intent.EXTRA_TEXT, "EYES recognition returned: " + text + ". Can you verify this?");
+        sendIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        sendIntent.setType("image/png");
 
-        Intent sendIntent = new Intent();
-        sendIntent.setAction(Intent.ACTION_SEND);
-//        sendIntent.putExtra(Intent.EXTRA_TEXT, "The EYES app recognized this image as [" + text + "]. Can you verify?");
-//        sendIntent.setType("text/plain");
-//        sendIntent.putExtra("image", byteArray); // too large
-        sendIntent.putExtra("image", filename);
-        sendIntent.setType("image/jpeg");
-
-//        Intent shareIntent = Intent.createChooser(sendIntent, null);
-        mainActivity.startActivity(sendIntent);
+        // Create intent to share
+        Intent shareIntent = Intent.createChooser(sendIntent, null);
+        // start This intent activity
+        mainActivity.startActivity(shareIntent);
     }
 
     // Google Firebase ML Kit API

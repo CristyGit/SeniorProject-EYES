@@ -1,6 +1,7 @@
 package com.example.myapp;
 
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
@@ -8,6 +9,7 @@ import android.view.View;
 import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -22,6 +24,10 @@ import com.wonderkiln.camerakit.CameraKitImage;
 import com.wonderkiln.camerakit.CameraKitVideo;
 import com.wonderkiln.camerakit.CameraView;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements CameraKitEventListener, TextToSpeech.OnInitListener
@@ -217,12 +223,34 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
         }
     }
 
+    // Saves bitmap as PNG to the app's cache directory. Returns Uri of the saved file
+    public Uri saveImage(Bitmap image) {
+        File imagesFolder = new File(getCacheDir(), "images");
+        Uri uri = null;
+        try {
+            imagesFolder.mkdirs();
+            File file = new File(imagesFolder, "shared_image.png");
+
+            FileOutputStream stream = new FileOutputStream(file);
+            image.compress(Bitmap.CompressFormat.PNG, 90, stream);
+            stream.flush();
+            stream.close();
+            uri = FileProvider.getUriForFile(this, "com.mydomain.fileprovider", file);
+
+        } catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+        return uri;
+    }
+
     // When Activity is resumed, start the camera
     @Override
     public void onResume()
     {
         super.onResume();
         cameraView.start();
+        cameraButton.setText("Recognize");
     }
 
     // When Activity is Paused, stop the camera and text to speech
