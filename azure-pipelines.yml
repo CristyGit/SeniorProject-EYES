@@ -13,7 +13,7 @@ steps:
 - task: Gradle@2
   inputs:
     workingDirectory: 'C:\Users\Cristina Villarroel\OneDrive\Documents\Projects\VisuallyImpairedApp'
-    gradleWrapperFile: 'C:\Users\Cristina Villarroel\OneDrive\Documents\Projects\VisuallyImpairedApp\gradlew'
+    gradleWrapperFile: 'gradlew'
     gradleOptions: '-Xmx3072m'
     publishJUnitResults: false
     testResultsFiles: '**/TEST-*.xml'
