@@ -18,8 +18,4 @@ steps:
     publishJUnitResults: false
     testResultsFiles: '**/TEST-*.xml'
     tasks: 'assembleDebug'
-- task: AppCenterDistribute@1
-  inputs:
-    serverEndpoint: 
-    appSlug: 
-    appFile: 
+
