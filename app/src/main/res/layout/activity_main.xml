@@ -38,8 +38,8 @@
         android:id="@+id/camView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:layout_editor_absoluteX="-166dp"
-        tools:layout_editor_absoluteY="16dp" />
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="37dp"></com.wonderkiln.camerakit.CameraView>
 
     <Button
         android:id="@+id/cameraBtn"
@@ -52,10 +52,28 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.971" />
 
+    <Button
+        android:id="@+id/send_button"
+        android:visibility="invisible"
+        android:layout_width="46dp"
+        android:layout_height="46dp"
+        android:background="@drawable/button_bg_round"
+        android:padding="15dp"
+        app:layout_constraintBottom_toTopOf="@+id/nav_view"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.04"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txt_result"
+        app:layout_constraintVertical_bias="0.97" />
+
     <TextView
         android:id="@+id/txt_result"
         android:layout_width="match_parent"
         android:layout_height="58dp"
-        android:text="Click button" />
+        android:text="Click button"
+        android:textAlignment="center"
+        app:layout_constraintBottom_toTopOf="@+id/nav_view"
+        app:layout_constraintTop_toTopOf="@+id/nav_host_fragment"
+        app:layout_constraintVertical_bias="0.0" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
