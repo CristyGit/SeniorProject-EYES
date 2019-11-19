@@ -12,7 +12,7 @@ pool:
 steps:
 - task: Gradle@2
   inputs:
-    workingDirectory: 'C:\Users\Cristina Villarroel\OneDrive\Documents\Projects\VisuallyImpairedApp'
+    workingDirectory: 'Projects\VisuallyImpairedApp'
     gradleWrapperFile: 'gradlew'
     gradleOptions: '-Xmx3072m'
     publishJUnitResults: false
