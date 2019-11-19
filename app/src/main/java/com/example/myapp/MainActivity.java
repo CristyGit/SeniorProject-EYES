@@ -13,10 +13,6 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
-import com.microsoft.appcenter.AppCenter;
-import com.microsoft.appcenter.analytics.Analytics;
-import com.microsoft.appcenter.crashes.Crashes;
-
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.wonderkiln.camerakit.CameraKit;
 import com.wonderkiln.camerakit.CameraKitError;
@@ -48,14 +44,14 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
         super.onCreate(savedInstanceState);
         initUI();
         initRecognitionElements();
-//        AppCenter.start(getApplication(), "d36a1ac9-0ef9-455c-9c94-993d85d78ef6",
-//                Analytics.class, Crashes.class);
     }
 
     // Initialize Main Activity View, Navigation Bar, and Camera
     private void initUI()
     {
         setContentView(R.layout.activity_main);
+        sendButton = findViewById(R.id.send_button);
+
         initNav();
         initCamera();
     }
@@ -92,8 +88,24 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
                     textToSpeech.stop();
                 }
 
+                // check if send button is there, if it is remove it
+                if(sendButton.getVisibility() == View.VISIBLE)
+                {
+                    sendButton.setVisibility(View.INVISIBLE);
+                }
+
                 // Start camera view
                 cameraView.start();
+
+                if (cameraButton.getText().equals("Stop"))
+                {
+                    cameraButton.setText("Recognize");
+                }
+                else
+                {
+                    // Set camera text
+                    cameraButton.setText("Stop");
+                }
 
                 // Get selected Menu Option ID
                 int number = bottomNavigationView.getSelectedItemId();
@@ -126,6 +138,9 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
 
         // Stop camera preview while recognition is happening
         cameraView.stop();
+
+        // make send button visible
+        sendButton.setVisibility(View.VISIBLE);
 
         // Get selected Menu Option ID
         int number = bottomNavigationView.getSelectedItemId();
@@ -218,8 +233,8 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
         if (textToSpeech != null)
         {
             textToSpeech.stop();
-            textToSpeech.shutdown();
         }
+        sendButton.setVisibility(View.INVISIBLE);
         super.onPause();
     }
 

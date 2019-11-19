@@ -31,7 +31,7 @@ public class ColorRecognitionTask extends AsyncTask<byte[], String, String>
     // Progress Popup
     private ProgressDialog progressDialog;
 
-    TextView textView;
+    private TextView textView;
 
     // API key
     private final String API_KEY = BuildConfig.ApiKey;

@@ -70,8 +70,10 @@
         android:id="@+id/txt_result"
         android:layout_width="match_parent"
         android:layout_height="58dp"
-        android:text="Click button"
+        android:fontFamily="sans-serif-smallcaps"
+        android:text="Select type of recognition and then press the button"
         android:textAlignment="center"
+        android:textSize="24sp"
         app:layout_constraintBottom_toTopOf="@+id/nav_view"
         app:layout_constraintTop_toTopOf="@+id/nav_host_fragment"
         app:layout_constraintVertical_bias="0.0" />
