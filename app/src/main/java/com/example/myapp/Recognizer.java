@@ -27,13 +27,12 @@ import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcode;
 import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcodeDetector;
 import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcodeDetectorOptions;
 import com.google.firebase.ml.vision.common.FirebaseVisionImage;
+import com.google.firebase.ml.vision.label.FirebaseVisionImageLabel;
+import com.google.firebase.ml.vision.label.FirebaseVisionImageLabeler;
 import com.google.firebase.ml.vision.text.FirebaseVisionText;
 import com.google.firebase.ml.vision.text.FirebaseVisionTextRecognizer;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.List;
 
 // This class contains runs the API's recognition functions
@@ -76,22 +75,33 @@ public class Recognizer
     // Google Firebase ML Kit API (1ST CHOICE)
     public void runTextRecognition(Bitmap bitmap)
     {
+        // Create firebase vision image object with given bitmap
         FirebaseVisionImage image = FirebaseVisionImage.fromBitmap(bitmap);
+
+        // Get an instance of Text Recognizer API
         FirebaseVisionTextRecognizer detector = FirebaseVision.getInstance()
                 .getOnDeviceTextRecognizer();
+
+        // Process Image
         detector.processImage(image)
                 .addOnSuccessListener(new OnSuccessListener<FirebaseVisionText>()
                 {
+                    // Task completed successfully
                     @Override
                     public void onSuccess(FirebaseVisionText texts)
                     {
+                        // Extract text
                         String resultText = texts.getText();
-                        // Save the text to database
+
+                        // set display text toi result
                         textView.setText(resultText);
+                        // Text-to-Speech result text
                         mainActivity.speak(resultText);
+
+                        // send button listener
                         sendButton.setOnClickListener(new View.OnClickListener()
                         {
-                            // When button is pressed, share image with contacts.
+                            // When button is pressed, share image and text with contact
                             @Override
                             public void onClick(View v)
                             {
@@ -102,10 +112,10 @@ public class Recognizer
                 })
                 .addOnFailureListener(new OnFailureListener()
                 {
+                    // Task failed with an exception
                     @Override
                     public void onFailure(@NonNull Exception e)
                     {
-                        // Task failed with an exception
                         e.printStackTrace();
                     }
                 });
@@ -127,7 +137,7 @@ public class Recognizer
         visionTask.execute(outputStream.toByteArray());
     }
 
-    // Microsoft Computer Vision API for Scene Recognition
+    // Microsoft Computer Vision API for Scene Recognition (ONLY CHOICE)
     public void runSceneRecognition(Bitmap bitmap)
     {
         // Create output stream byte array
@@ -143,7 +153,7 @@ public class Recognizer
         visionTask.execute(outputStream.toByteArray());
     }
 
-    // Microsoft Computer Vision API for Object Recognition
+    // Microsoft Computer Vision API for Object Recognition (1ST CHOICE)
     public void runObjectRecognition(Bitmap bitmap)
     {
         // Create output stream byte array
@@ -159,104 +169,55 @@ public class Recognizer
         visionTask.execute(outputStream.toByteArray());
     }
 
-//    // Google Image Labels API
-//    public void runObjectRecognition2(Bitmap bitmap)
-//    {
-//        FirebaseVisionImage image = FirebaseVisionImage.fromBitmap(bitmap);
-//
-//        FirebaseVisionImageLabeler labeler = FirebaseVision.getInstance()
-//                .getOnDeviceImageLabeler();
-//
-//        labeler.processImage(image)
-//                .addOnSuccessListener(new OnSuccessListener<List<FirebaseVisionImageLabel>>()
-//                {
-//                    @Override
-//                    public void onSuccess(List<FirebaseVisionImageLabel> labels)
-//                    {
-//                        // Task completed successfully
-//                        // ...
-//                        StringBuilder stringResult = new StringBuilder();
-//
-//                        for (FirebaseVisionImageLabel label : labels)
-//                        {
-//                            if (label.getConfidence() > 0.8)
-//                                stringResult.append(label.getText());
-//                        }
-//                        String displayText = stringResult.toString();
-//                        mainActivity.speak(displayText);
-//                    }
-//                })
-//                .addOnFailureListener(new OnFailureListener()
-//                {
-//                    @Override
-//                    public void onFailure(@NonNull Exception e)
-//                    {
-//                        // Task failed with an exception
-//                        // ...
-//                    }
-//                });
-//    }
+    // Google Image Labels API (2ND CHOICE)
+    public void runObjectRecognition2(Bitmap bitmap)
+    {
+        // Create firebase vision image from bitmap
+        FirebaseVisionImage image = FirebaseVisionImage.fromBitmap(bitmap);
 
-    // NOT WORKING
-//    // Google Product Recognition API for Product Recognition
-//    public void runProductRecognition(Bitmap bitmap)
-//    {
-//        FirebaseVisionBarcodeDetectorOptions options =
-//                new FirebaseVisionBarcodeDetectorOptions.Builder()
-//                        .setBarcodeFormats(
-//                                FirebaseVisionBarcode.FORMAT_EAN_13,
-//                                FirebaseVisionBarcode.FORMAT_EAN_8,
-//                                FirebaseVisionBarcode.FORMAT_UPC_A,
-//                                FirebaseVisionBarcode.FORMAT_ITF,
-//                                FirebaseVisionBarcode.FORMAT_CODABAR,
-//                                FirebaseVisionBarcode.FORMAT_UPC_E)
-//                        .build();
-//
-//         FirebaseVisionBarcodeDetector detector = FirebaseVision.getInstance()
-//        .getVisionBarcodeDetector(options);
-//
-//        FirebaseVisionImage image = FirebaseVisionImage.fromBitmap(bitmap);
-//
-//        Task<List<FirebaseVisionBarcode>> result = detector.detectInImage(image)
-//                .addOnSuccessListener(new OnSuccessListener<List<FirebaseVisionBarcode>>() {
-//                    @Override
-//                    public void onSuccess(List<FirebaseVisionBarcode> barcodes) {
-//                        // Task completed successfully
-//
-//                        for (FirebaseVisionBarcode barcode: barcodes)
-//                        {
-//                            // return barcode value in raw format
-//                            String displayValue = barcode.getDisplayValue();
-//                            // return format type of barcode
-//                            int valueType = barcode.getValueType();
-//
-//
-//                            // See API reference for complete list of supported types
-//                            switch (valueType) {
-//                                case FirebaseVisionBarcode.TYPE_WIFI:
-//                                    String ssid = barcode.getWifi().getSsid();
-//                                    String password = barcode.getWifi().getPassword();
-//                                    int type = barcode.getWifi().getEncryptionType();
-//                                    break;
-//                                case FirebaseVisionBarcode.TYPE_URL:
-//                                    String title = barcode.getUrl().getTitle();
-//                                    String url = barcode.getUrl().getUrl();
-//                                    break;
-//                            }
-//                        }
-//
-//                    }
-//                })
-//                .addOnFailureListener(new OnFailureListener() {
-//                    @Override
-//                    public void onFailure(@NonNull Exception e) {
-//                        // Task failed with an exception
-//                        // ...
-//                    }
-//                });
-//    }
+        // Get an instance of Image Labeler API
+        FirebaseVisionImageLabeler labeler = FirebaseVision.getInstance()
+                .getOnDeviceImageLabeler();
 
-    // Microsoft Computer Vision API for Color Recognition
+        // Process image
+        labeler.processImage(image)
+                .addOnSuccessListener(new OnSuccessListener<List<FirebaseVisionImageLabel>>()
+                {
+                    // Task completed successfully
+                    @Override
+                    public void onSuccess(List<FirebaseVisionImageLabel> labels)
+                    {
+                        // Build a string
+                        StringBuilder stringResult = new StringBuilder();
+
+                        // Extract text/labels
+                        for (FirebaseVisionImageLabel label : labels)
+                        {
+                            // confidence level has to be higher than 0.8
+                            if (label.getConfidence() > 0.8)
+                                stringResult.append(label.getText());
+                        }
+                        // conert builder to string
+                        String displayText = stringResult.toString();
+
+                        // set display text toi result
+                        textView.setText(displayText);
+                        // Text-to-Speech result text
+                        mainActivity.speak(displayText);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener()
+                {
+                    // Task failed with an exception
+                    @Override
+                    public void onFailure(@NonNull Exception e)
+                    {
+                        e.printStackTrace();
+                    }
+                });
+    }
+
+    // Microsoft Computer Vision API for Color Recognition (ONLY CHOICE)
     public void runColorRecognition(Bitmap bitmap)
     {
         // Create output stream byte array

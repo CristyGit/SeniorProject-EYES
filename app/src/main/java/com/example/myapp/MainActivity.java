@@ -226,26 +226,38 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
 
     // Saves bitmap as PNG to the app's cache directory. Returns Uri of the saved file
     public Uri saveImage(Bitmap image) {
+        // Get image folder
         File imagesFolder = new File(getCacheDir(), "images");
+        // create uri to store
         Uri uri = null;
+
         try {
+            // Creates directory and parent directories
             imagesFolder.mkdirs();
+            // create image file
             File file = new File(imagesFolder, "shared_image.png");
 
+            // creates outstream of file
             FileOutputStream stream = new FileOutputStream(file);
+            // compress bitmap into stream
             image.compress(Bitmap.CompressFormat.PNG, 90, stream);
+
+            // flush aand close stream
             stream.flush();
             stream.close();
+
+            // get URI for file
             uri = FileProvider.getUriForFile(this, "com.mydomain.fileprovider", file);
 
         } catch (IOException e)
         {
             e.printStackTrace();
         }
+
         return uri;
     }
 
-    // When Activity is resumed, start the camera
+    // When Activity is resumed, start the camera, change button text
     @Override
     public void onResume()
     {
@@ -254,7 +266,7 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
         cameraButton.setText("Recognize");
     }
 
-    // When Activity is Paused, stop the camera and text to speech
+    // When Activity is Paused, stop the camera and text to speech, hide send button
     @Override
     public void onPause()
     {
