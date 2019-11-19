@@ -13,7 +13,12 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import com.microsoft.appcenter.AppCenter;
+import com.microsoft.appcenter.analytics.Analytics;
+import com.microsoft.appcenter.crashes.Crashes;
+
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.wonderkiln.camerakit.CameraKit;
 import com.wonderkiln.camerakit.CameraKitError;
 import com.wonderkiln.camerakit.CameraKitEvent;
 import com.wonderkiln.camerakit.CameraKitEventListener;
@@ -29,6 +34,7 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
     private CameraView cameraView;
     private Button cameraButton;
     private BottomNavigationView bottomNavigationView;
+    private Button sendButton;
 
     // Text to Speech Element
     private TextToSpeech textToSpeech;
@@ -42,6 +48,8 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
         super.onCreate(savedInstanceState);
         initUI();
         initRecognitionElements();
+//        AppCenter.start(getApplication(), "d36a1ac9-0ef9-455c-9c94-993d85d78ef6",
+//                Analytics.class, Crashes.class);
     }
 
     // Initialize Main Activity View, Navigation Bar, and Camera
@@ -78,12 +86,32 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
             @Override
             public void onClick(View v)
             {
+                // check if speech still there, if it is stop it
                 if (textToSpeech != null)
+                {
                     textToSpeech.stop();
+                }
 
-                // Image is taken
+                // Start camera view
                 cameraView.start();
-                cameraView.captureImage();
+
+                // Get selected Menu Option ID
+                int number = bottomNavigationView.getSelectedItemId();
+
+                // If color recognition is selected turn on flash
+                if (number == R.id.navigation_color)
+                {
+                    // Turn flash ON
+                    cameraView.setFlash(CameraKit.Constants.FLASH_ON);
+                    // Capture picture
+                    cameraView.captureImage();
+                }
+                else
+                {
+                    // Capture picture
+                    cameraView.captureImage();
+                }
+
             }
         });
     }
@@ -96,7 +124,7 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
         Bitmap bitmap = cameraKitImage.getBitmap();
         bitmap = Bitmap.createScaledBitmap(bitmap, cameraView.getWidth(), cameraView.getHeight(), false);
 
-        // Stop camera meanwhile recognition is happening
+        // Stop camera preview while recognition is happening
         cameraView.stop();
 
         // Get selected Menu Option ID

@@ -1,8 +1,17 @@
 package com.example.myapp;
 
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.AsyncTask;
+import android.app.Activity;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -11,18 +20,28 @@ import com.example.myapp.ui.object.ObjectRecognitionTask;
 import com.example.myapp.ui.scene.SceneRecognitionTask;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.ml.vision.FirebaseVision;
+import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcode;
+import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcodeDetector;
+import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcodeDetectorOptions;
 import com.google.firebase.ml.vision.common.FirebaseVisionImage;
 import com.google.firebase.ml.vision.text.FirebaseVisionText;
 import com.google.firebase.ml.vision.text.FirebaseVisionTextRecognizer;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.List;
 
 // This class contains runs the API's recognition functions
 public class Recognizer
 {
     // Initializing UI text view component
     private TextView textView;
+    private Button sendButton;
+
     // Initializing Main class object
     private MainActivity mainActivity;
 
@@ -31,6 +50,31 @@ public class Recognizer
     {
         this.mainActivity = mainActivity;
         textView = mainActivity.findViewById(R.id.txt_result);
+        sendButton = mainActivity.findViewById(R.id.send_button);
+    }
+
+    // Send Image to Contact Method
+    public void sendImageToContact(Bitmap bitmap, String text) throws IOException
+    {
+        //Write file
+        String filename = "image.jpe";
+        FileOutputStream stream = mainActivity.openFileOutput(filename, Context.MODE_PRIVATE);
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+
+        //Cleanup
+        stream.close();
+        bitmap.recycle();
+
+        Intent sendIntent = new Intent();
+        sendIntent.setAction(Intent.ACTION_SEND);
+//        sendIntent.putExtra(Intent.EXTRA_TEXT, "The EYES app recognized this image as [" + text + "]. Can you verify?");
+//        sendIntent.setType("text/plain");
+//        sendIntent.putExtra("image", byteArray); // too large
+        sendIntent.putExtra("image", filename);
+        sendIntent.setType("image/jpeg");
+
+//        Intent shareIntent = Intent.createChooser(sendIntent, null);
+        mainActivity.startActivity(sendIntent);
     }
 
     // Google Firebase ML Kit API
@@ -49,6 +93,21 @@ public class Recognizer
                         // Save the text to database
                         textView.setText(resultText);
                         mainActivity.speak(resultText);
+                        sendButton.setOnClickListener(new View.OnClickListener()
+                        {
+                            // When button is pressed, share image with contacts.
+                            @Override
+                            public void onClick(View v)
+                            {
+                                try
+                                {
+                                    sendImageToContact(bitmap, resultText);
+                                } catch (IOException e)
+                                {
+                                    e.printStackTrace();
+                                }
+                            }
+                        });
                     }
                 })
                 .addOnFailureListener(new OnFailureListener()
@@ -142,6 +201,65 @@ public class Recognizer
 //                    @Override
 //                    public void onFailure(@NonNull Exception e)
 //                    {
+//                        // Task failed with an exception
+//                        // ...
+//                    }
+//                });
+//    }
+
+    // NOT WORKING
+//    // Google Product Recognition API for Product Recognition
+//    public void runProductRecognition(Bitmap bitmap)
+//    {
+//        FirebaseVisionBarcodeDetectorOptions options =
+//                new FirebaseVisionBarcodeDetectorOptions.Builder()
+//                        .setBarcodeFormats(
+//                                FirebaseVisionBarcode.FORMAT_EAN_13,
+//                                FirebaseVisionBarcode.FORMAT_EAN_8,
+//                                FirebaseVisionBarcode.FORMAT_UPC_A,
+//                                FirebaseVisionBarcode.FORMAT_ITF,
+//                                FirebaseVisionBarcode.FORMAT_CODABAR,
+//                                FirebaseVisionBarcode.FORMAT_UPC_E)
+//                        .build();
+//
+//         FirebaseVisionBarcodeDetector detector = FirebaseVision.getInstance()
+//        .getVisionBarcodeDetector(options);
+//
+//        FirebaseVisionImage image = FirebaseVisionImage.fromBitmap(bitmap);
+//
+//        Task<List<FirebaseVisionBarcode>> result = detector.detectInImage(image)
+//                .addOnSuccessListener(new OnSuccessListener<List<FirebaseVisionBarcode>>() {
+//                    @Override
+//                    public void onSuccess(List<FirebaseVisionBarcode> barcodes) {
+//                        // Task completed successfully
+//
+//                        for (FirebaseVisionBarcode barcode: barcodes)
+//                        {
+//                            // return barcode value in raw format
+//                            String displayValue = barcode.getDisplayValue();
+//                            // return format type of barcode
+//                            int valueType = barcode.getValueType();
+//
+//
+//                            // See API reference for complete list of supported types
+//                            switch (valueType) {
+//                                case FirebaseVisionBarcode.TYPE_WIFI:
+//                                    String ssid = barcode.getWifi().getSsid();
+//                                    String password = barcode.getWifi().getPassword();
+//                                    int type = barcode.getWifi().getEncryptionType();
+//                                    break;
+//                                case FirebaseVisionBarcode.TYPE_URL:
+//                                    String title = barcode.getUrl().getTitle();
+//                                    String url = barcode.getUrl().getUrl();
+//                                    break;
+//                            }
+//                        }
+//
+//                    }
+//                })
+//                .addOnFailureListener(new OnFailureListener() {
+//                    @Override
+//                    public void onFailure(@NonNull Exception e) {
 //                        // Task failed with an exception
 //                        // ...
 //                    }
