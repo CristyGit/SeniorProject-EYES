@@ -115,22 +115,8 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
                     cameraButton.setText("Stop");
                 }
 
-                // Get selected Menu Option ID
-                int number = bottomNavigationView.getSelectedItemId();
-
-                // If color recognition is selected turn on flash
-                if (number == R.id.navigation_color)
-                {
-                    // Turn flash ON
-                    cameraView.setFlash(CameraKit.Constants.FLASH_ON);
-                    // Capture picture
-                    cameraView.captureImage();
-                }
-                else
-                {
-                    // Capture picture
-                    cameraView.captureImage();
-                }
+                // Capture picture
+                cameraView.captureImage();
             }
         });
     }
@@ -263,19 +249,22 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
     {
         super.onResume();
         cameraView.start();
-        cameraButton.setText("Recognize");
     }
 
-    // When Activity is Paused, stop the camera and text to speech, hide send button
+    // When Activity is Paused, stop the camera and text to speech, hide send button, set text
     @Override
     public void onPause()
     {
         cameraView.stop();
+
         if (textToSpeech != null)
         {
             textToSpeech.stop();
         }
+        cameraButton.setText("Recognize");
+
         sendButton.setVisibility(View.INVISIBLE);
+
         super.onPause();
     }
 
