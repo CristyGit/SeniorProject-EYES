@@ -128,6 +128,8 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
                 }
                 else
                 {
+                    // Turn flash OFF
+                    cameraView.setFlash(CameraKit.Constants.FLASH_OFF);
                     // Capture picture
                     cameraView.captureImage();
                 }
