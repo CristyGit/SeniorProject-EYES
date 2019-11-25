@@ -38,24 +38,9 @@
         android:layout_height="match_parent"
         tools:layout_editor_absoluteX="0dp"
         tools:layout_editor_absoluteY="37dp" >
-    </com.wonderkiln.camerakit.CameraView>
 
-    <Switch
-        android:id="@+id/flashSwitch"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:checked="false"
-        android:drawableLeft="@drawable/ic_flash_on_black_24dp"
-        android:scaleX="1.5"
-        android:scaleY="1.5"
-        android:textColorHighlight="#078F11"
-        android:textColorLink="#12D826"
-        app:layout_constraintBottom_toTopOf="@+id/send_button"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.07"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.01999998" />
+
+    </com.wonderkiln.camerakit.CameraView>
 
     <Button
         android:id="@+id/cameraBtn"
@@ -75,43 +60,38 @@
         android:background="@drawable/button_bg_round"
         android:foreground="@drawable/ic_share_black_24dp"
         android:padding="15dp"
-        android:text="send"
-        android:textColor="#3E96E9"
         android:visibility="invisible"
         app:layout_constraintBottom_toTopOf="@+id/nav_view"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.1"
+        app:layout_constraintHorizontal_bias="0.09"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/txt_result"
-        app:layout_constraintVertical_bias="0.84000003" />
+        app:layout_constraintVertical_bias="0.87" />
 
     <TextView
         android:id="@+id/txt_result"
-        android:layout_width="411dp"
-        android:layout_height="408dp"
-        android:layout_marginBottom="32dp"
+        android:layout_width="match_parent"
+        android:layout_height="58dp"
         android:fontFamily="sans-serif-smallcaps"
-        android:text="Menu Interface:\nSelect type of recognition and then press the middle RECOGNIZE button.\nVoice/Command Interface:\nPress the RED Mic button or Long press the screen to activate speech recognition, then said which recognition you want to perform (text, scene, object, color)."
+        android:text="Select type of recognition and then press the button"
         android:textAlignment="center"
         android:textSize="24sp"
         app:layout_constraintBottom_toTopOf="@+id/nav_view"
         app:layout_constraintTop_toTopOf="@+id/nav_host_fragment"
-        app:layout_constraintVertical_bias="0.13999999" />
+        app:layout_constraintVertical_bias="0.0" />
 
     <Button
         android:id="@+id/speech_button"
-        android:layout_width="70dp"
+        android:layout_width="80dp"
         android:layout_height="70dp"
-        android:background="@drawable/button_bg_round_red"
-        android:foreground="@drawable/ic_mic_black_24dp"
-        android:padding="15dp"
-        android:text="voice recognition"
-        android:textColor="#FC2929"
+        android:layout_marginLeft="250dp"
+        android:layout_marginTop="170dp"
+        android:layout_marginBottom="1dp"
+        android:text="Speech"
         app:layout_constraintBottom_toTopOf="@+id/nav_view"
         app:layout_constraintEnd_toEndOf="@+id/txt_result"
-        app:layout_constraintHorizontal_bias="0.9"
         app:layout_constraintStart_toStartOf="@+id/txt_result"
-        app:layout_constraintTop_toBottomOf="@+id/txt_result"
-        app:layout_constraintVertical_bias="0.83" />
+        app:layout_constraintTop_toTopOf="@+id/txt_result"
+        app:layout_constraintVertical_bias="0.73" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
