@@ -115,8 +115,24 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
                     cameraButton.setText("Stop");
                 }
 
-                // Capture picture
-                cameraView.captureImage();
+                // Get selected Menu Option ID
+                int number = bottomNavigationView.getSelectedItemId();
+
+                // If color recognition is selected turn on flash
+                if (number == R.id.navigation_color)
+                {
+                    // Turn flash ON
+                    cameraView.setFlash(CameraKit.Constants.FLASH_ON);
+                    // Capture picture
+                    cameraView.captureImage();
+                }
+                else
+                {
+                    // Turn flash ON
+                    cameraView.setFlash(CameraKit.Constants.FLASH_OFF);
+                    // Capture picture
+                    cameraView.captureImage();
+                }
             }
         });
     }
