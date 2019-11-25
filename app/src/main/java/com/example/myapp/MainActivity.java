@@ -1,8 +1,12 @@
 package com.example.myapp;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.speech.RecognitionListener;
+import android.speech.RecognizerIntent;
+import android.speech.SpeechRecognizer;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.view.View;
@@ -27,6 +31,8 @@ import com.wonderkiln.camerakit.CameraView;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements CameraKitEventListener, TextToSpeech.OnInitListener
@@ -36,11 +42,20 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
     private Button cameraButton;
     private BottomNavigationView bottomNavigationView;
     private Button sendButton;
+    private Button speechButton;
 
     // Text to Speech Element
     private TextToSpeech textToSpeech;
     // Recognizer Class Object
     private Recognizer recognizer;
+
+    private SpeechRecognizer mySpeechRecognizer;
+   // private final int VOICE_RECOGNITION_REQUEST_CODE = 1234;
+    private boolean speech_recog = false;
+    private boolean voice_text_recog = false;
+    private boolean voice_scene_recog = false;
+    private boolean voice_object_recog = false;
+    private boolean voice_color_recog = false;
 
     // When the Activity is Created
     @Override
@@ -49,16 +64,141 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
         super.onCreate(savedInstanceState);
         initUI();
         initRecognitionElements();
+
+
     }
+
+
 
     // Initialize Main Activity View, Navigation Bar,send button, and Camera.
     private void initUI()
     {
         setContentView(R.layout.activity_main);
         sendButton = findViewById(R.id.send_button);
+        speechButton = findViewById(R.id.speech_button);
+        speechButton.setOnClickListener((view -> {
+            Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                    RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+            intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "What type of recognition would you like to do?");
+            mySpeechRecognizer.startListening(intent);
+        }));
         initNav();
         initCamera();
+       // startSpeechRecog();
+        initializeSpeechRecognizer();
     }
+
+    private void initializeSpeechRecognizer() {
+        if(SpeechRecognizer.isRecognitionAvailable(this)){
+            mySpeechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
+            mySpeechRecognizer.setRecognitionListener(new RecognitionListener() {
+                @Override
+                public void onReadyForSpeech(Bundle bundle) {
+
+                }
+
+                @Override
+                public void onBeginningOfSpeech() {
+
+                }
+
+                @Override
+                public void onRmsChanged(float v) {
+
+                }
+
+                @Override
+                public void onBufferReceived(byte[] bytes) {
+
+                }
+
+                @Override
+                public void onEndOfSpeech() {
+
+                }
+
+                @Override
+                public void onError(int i) {
+
+                }
+
+                @Override
+                public void onResults(Bundle bundle) {
+                    List<String> results = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+                    processResult(results.get(0));
+                }
+
+                @Override
+                public void onPartialResults(Bundle bundle) {
+
+                }
+
+                @Override
+                public void onEvent(int i, Bundle bundle) {
+
+                }
+            });
+        }
+    }
+
+    private void processResult(String command) {
+        command = command.toLowerCase();
+        speech_recog = true;
+        if (command.indexOf("text") != -1) {
+            voice_text_recog = true;
+            // Capture picture
+            cameraView.captureImage();
+        } else if (command.indexOf("scene") != -1) {
+            voice_scene_recog = true;
+            // Capture picture
+            cameraView.captureImage();
+        } else if (command.indexOf("object") != -1) {
+            voice_object_recog = true;
+            // Capture picture
+            cameraView.captureImage();
+        } else if (command.indexOf("color") != -1) {
+            voice_color_recog = true;
+            // Turn flash ON
+            cameraView.setFlash(CameraKit.Constants.FLASH_ON);
+            // Capture picture
+            cameraView.captureImage();
+        }
+    }
+
+
+ /*   private void startSpeechRecog() {
+        speechButton = findViewById(R.id.speech_button);
+        speechButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                cameraView.captureImage();
+
+                startVoiceRecognitionActivity();
+            }
+        });
+    }*/
+
+   /* private void startVoiceRecognitionActivity() {
+        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        intent.putExtra(RecognizerIntent.EXTRA_PROMPT,
+                "What type of recognition would you like?");
+        startActivityForResult(intent, VOICE_RECOGNITION_REQUEST_CODE);
+    }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == VOICE_RECOGNITION_REQUEST_CODE && resultCode == RESULT_OK) {
+            ArrayList<String> results = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+            speech_recog = true;
+
+
+            super.onActivityResult(requestCode, resultCode, data);
+
+        }
+    }*/
+
 
     // Initialize Navigation Bar
     private void initNav()
@@ -115,8 +255,23 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
                     cameraButton.setText("Stop");
                 }
 
-                // Capture picture
-                cameraView.captureImage();
+                // Get selected Menu Option ID
+                int number = bottomNavigationView.getSelectedItemId();
+
+                // If color recognition is selected turn on flash
+                if (number == R.id.navigation_color)
+                {
+                    // Turn flash ON
+                    cameraView.setFlash(CameraKit.Constants.FLASH_ON);
+                    // Capture picture
+                    cameraView.captureImage();
+                }
+                else
+                {
+                    // Capture picture
+
+                    cameraView.captureImage();
+                }
             }
         });
     }
@@ -139,24 +294,43 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
         int number = bottomNavigationView.getSelectedItemId();
 
         // Depending on selected option, we run the corresponding API
-        switch (number)
-        {
-            // if item selected is text, then run text recognition
-            case R.id.navigation_text:
+        if(!speech_recog) {
+            switch (number) {
+                // if item selected is text, then run text recognition
+                case R.id.navigation_text:
+                    recognizer.runTextRecognition(bitmap);
+                    break;
+                // if item selected is scene, then run scene recognition
+                case R.id.navigation_scene:
+                    recognizer.runSceneRecognition(bitmap);
+                    break;
+                // if item selected is object, then run object recognition
+                case R.id.navigation_object:
+                    recognizer.runObjectRecognition(bitmap);
+                    break;
+                // if item selected is notifications, then run object recognition
+                case R.id.navigation_color:
+                    recognizer.runColorRecognition(bitmap);
+                    break;
+            }
+        }
+        else{
+            if (voice_text_recog){
                 recognizer.runTextRecognition(bitmap);
-                break;
-            // if item selected is scene, then run scene recognition
-            case R.id.navigation_scene:
+                speech_recog = false;
+            }
+            else if(voice_scene_recog){
                 recognizer.runSceneRecognition(bitmap);
-                break;
-            // if item selected is object, then run object recognition
-            case R.id.navigation_object:
+                speech_recog = false;
+            }
+            else if(voice_object_recog){
                 recognizer.runObjectRecognition(bitmap);
-                break;
-            // if item selected is notifications, then run object recognition
-            case R.id.navigation_color:
+                speech_recog = false;
+            }
+            else if(voice_color_recog){
                 recognizer.runColorRecognition(bitmap);
-                break;
+                speech_recog = false;
+            }
         }
     }
 
@@ -210,6 +384,7 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
         }
     }
 
+
     // Saves bitmap as PNG to the app's cache directory. Returns Uri of the saved file
     public Uri saveImage(Bitmap image) {
         // Get image folder
@@ -249,22 +424,19 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
     {
         super.onResume();
         cameraView.start();
+        cameraButton.setText("Recognize");
     }
 
-    // When Activity is Paused, stop the camera and text to speech, hide send button, set text
+    // When Activity is Paused, stop the camera and text to speech, hide send button
     @Override
     public void onPause()
     {
         cameraView.stop();
-
         if (textToSpeech != null)
         {
             textToSpeech.stop();
         }
-        cameraButton.setText("Recognize");
-
         sendButton.setVisibility(View.INVISIBLE);
-
         super.onPause();
     }
 
