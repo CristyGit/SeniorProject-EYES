@@ -12,8 +12,6 @@
         android:id="@+id/nav_view"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="0dp"
-        android:layout_marginEnd="0dp"
         android:background="?android:attr/windowBackground"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -39,7 +37,10 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:layout_editor_absoluteX="0dp"
-        tools:layout_editor_absoluteY="37dp"></com.wonderkiln.camerakit.CameraView>
+        tools:layout_editor_absoluteY="37dp" >
+
+
+    </com.wonderkiln.camerakit.CameraView>
 
     <Button
         android:id="@+id/cameraBtn"
@@ -78,5 +79,19 @@
         app:layout_constraintBottom_toTopOf="@+id/nav_view"
         app:layout_constraintTop_toTopOf="@+id/nav_host_fragment"
         app:layout_constraintVertical_bias="0.0" />
+
+    <Button
+        android:id="@+id/speech_button"
+        android:layout_width="80dp"
+        android:layout_height="70dp"
+        android:layout_marginLeft="250dp"
+        android:layout_marginTop="170dp"
+        android:layout_marginBottom="1dp"
+        android:text="Speech"
+        app:layout_constraintBottom_toTopOf="@+id/nav_view"
+        app:layout_constraintEnd_toEndOf="@+id/txt_result"
+        app:layout_constraintStart_toStartOf="@+id/txt_result"
+        app:layout_constraintTop_toTopOf="@+id/txt_result"
+        app:layout_constraintVertical_bias="0.73" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
