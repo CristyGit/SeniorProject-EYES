@@ -25,14 +25,16 @@ import java.net.URL;
 
 // This class allows you to perform background operations and publish results on the UI thread
 // Basically it shows the progress dialog meanwhile object recognition API is recognizing
-public class SceneRecognitionTask extends AsyncTask<byte[], String, String>
+public class SceneRecognitionTask<X,Y,Z> extends AsyncTask<byte[], String, String>
 {
     // Main Activity Class Object
     private MainActivity mainActivity;
     // Progress Popup
     private ProgressDialog progressDialog;
 
-    TextView textView;
+    private TextView textView;
+
+    public String resultString;
 
     // API key
     private final String API_KEY = BuildConfig.ApiKey;
@@ -127,6 +129,7 @@ public class SceneRecognitionTask extends AsyncTask<byte[], String, String>
     {
         // Final String
         String recognitionText;
+        resultString = "";
 
         // Check if response String is empty
         if (TextUtils.isEmpty(s))
@@ -183,6 +186,7 @@ public class SceneRecognitionTask extends AsyncTask<byte[], String, String>
                 textView.setText("No scenes Recognized");
             }
 
+            resultString = recognitionText;
             // Sends text to Text to speech
             mainActivity.speak(recognitionText);
         }

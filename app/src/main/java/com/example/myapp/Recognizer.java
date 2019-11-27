@@ -8,6 +8,7 @@ import android.os.AsyncTask;
 import android.app.Activity;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -131,7 +132,6 @@ public class Recognizer
 
         // Create an Async task for object recognition
         AsyncTask<byte[], String, String> visionTask = new TextRecognitionTask(mainActivity);
-
         // Execute Async task and send image to task
         // Request API and display progress dialog in UI at the same time
         visionTask.execute(outputStream.toByteArray());
@@ -146,11 +146,19 @@ public class Recognizer
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
 
         // Create an Async task for scene recognition
-        AsyncTask<byte[], String, String> visionTask = new SceneRecognitionTask(mainActivity);
+        SceneRecognitionTask<byte[], String, String> visionTask = new SceneRecognitionTask(mainActivity);
 
         // Execute Async task and send image to task
         // Request API and display progress dialog in UI at the same time
         visionTask.execute(outputStream.toByteArray());
+
+        sendButton.setOnClickListener(new View.OnClickListener() {
+            // When button is pressed, share image and text with contact
+            @Override
+            public void onClick(View v) {
+                sendImageToContact(bitmap, visionTask.resultString);
+            }
+        });
     }
 
     // Microsoft Computer Vision API for Object Recognition (1ST CHOICE)
