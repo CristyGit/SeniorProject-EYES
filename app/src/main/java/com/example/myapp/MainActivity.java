@@ -64,8 +64,6 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
         super.onCreate(savedInstanceState);
         initUI();
         initRecognitionElements();
-
-
     }
 
 
@@ -80,8 +78,10 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
             Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
             intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
                     RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-            intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "What type of recognition would you like to do?");
             mySpeechRecognizer.startListening(intent);
+            if (textToSpeech != null) {
+                textToSpeech.stop();
+            }
         }));
         initNav();
         initCamera();
@@ -144,25 +144,35 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
 
     private void processResult(String command) {
         command = command.toLowerCase();
+
+        Log.d(command, "Speech recognized this " + command);
+
         speech_recog = true;
-        if (command.indexOf("text") != -1) {
+
+        if (command.contains("text")) {
             voice_text_recog = true;
             // Capture picture
             cameraView.captureImage();
-        } else if (command.indexOf("scene") != -1) {
+        } else if (command.contains("scene")) {
             voice_scene_recog = true;
             // Capture picture
             cameraView.captureImage();
-        } else if (command.indexOf("object") != -1) {
+        } else if (command.contains("object")) {
             voice_object_recog = true;
             // Capture picture
             cameraView.captureImage();
-        } else if (command.indexOf("color") != -1) {
+        } else if (command.contains("color")) {
             voice_color_recog = true;
             // Turn flash ON
             cameraView.setFlash(CameraKit.Constants.FLASH_ON);
             // Capture picture
             cameraView.captureImage();
+        }
+        else if (command.contains("stop")) {
+
+        }
+        else {
+            speak("Speech Recognition Failed. Try Again");
         }
     }
 
@@ -268,8 +278,9 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
                 }
                 else
                 {
+                    // Turn flash OFF
+                    cameraView.setFlash(CameraKit.Constants.FLASH_OFF);
                     // Capture picture
-
                     cameraView.captureImage();
                 }
             }
@@ -284,8 +295,10 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
         Bitmap bitmap = cameraKitImage.getBitmap();
         bitmap = Bitmap.createScaledBitmap(bitmap, cameraView.getWidth(), cameraView.getHeight(), false);
 
-        // Stop camera preview while recognition is happening
-        cameraView.stop();
+        if (!speech_recog) {
+            // Stop camera preview while recognition is happening
+            cameraView.stop();
+        }
 
         // make send button visible
         sendButton.setVisibility(View.VISIBLE);
@@ -318,18 +331,22 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
             if (voice_text_recog){
                 recognizer.runTextRecognition(bitmap);
                 speech_recog = false;
+                voice_text_recog = false;
             }
             else if(voice_scene_recog){
                 recognizer.runSceneRecognition(bitmap);
                 speech_recog = false;
+                voice_scene_recog = false;
             }
             else if(voice_object_recog){
                 recognizer.runObjectRecognition(bitmap);
                 speech_recog = false;
+                voice_object_recog = false;
             }
             else if(voice_color_recog){
                 recognizer.runColorRecognition(bitmap);
                 speech_recog = false;
+                voice_color_recog = false;
             }
         }
     }
