@@ -50,7 +50,6 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
     private Recognizer recognizer;
 
     private SpeechRecognizer mySpeechRecognizer;
-   // private final int VOICE_RECOGNITION_REQUEST_CODE = 1234;
     private boolean speech_recog = false;
     private boolean voice_text_recog = false;
     private boolean voice_scene_recog = false;
@@ -65,8 +64,6 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
         initUI();
         initRecognitionElements();
     }
-
-
 
     // Initialize Main Activity View, Navigation Bar,send button, and Camera.
     private void initUI()
@@ -85,7 +82,6 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
         }));
         initNav();
         initCamera();
-       // startSpeechRecog();
         initializeSpeechRecognizer();
     }
 
@@ -145,7 +141,7 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
     private void processResult(String command) {
         command = command.toLowerCase();
 
-        Log.d(command, "Speech recognized this " + command);
+//        Log.d(command, "Speech recognized this " + command);
 
         speech_recog = true;
 
@@ -167,9 +163,11 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
             cameraView.setFlash(CameraKit.Constants.FLASH_ON);
             // Capture picture
             cameraView.captureImage();
+            // Turn flash ON
+            cameraView.setFlash(CameraKit.Constants.FLASH_OFF);
         }
         else if (command.contains("stop")) {
-
+            textToSpeech.stop();
         }
         else {
             speak("Speech Recognition Failed. Try Again");
@@ -208,7 +206,6 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
 
         }
     }*/
-
 
     // Initialize Navigation Bar
     private void initNav()
