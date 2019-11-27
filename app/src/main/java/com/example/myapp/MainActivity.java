@@ -11,6 +11,7 @@ import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
@@ -43,6 +44,7 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
     private BottomNavigationView bottomNavigationView;
     private Button sendButton;
     private Button speechButton;
+    private TextView textView;
 
     // Text to Speech Element
     private TextToSpeech textToSpeech;
@@ -70,6 +72,7 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
     {
         setContentView(R.layout.activity_main);
         sendButton = findViewById(R.id.send_button);
+        textView = findViewById(R.id.txt_result);
         speechButton = findViewById(R.id.speech_button);
         speechButton.setOnClickListener((view -> {
             Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
@@ -170,7 +173,8 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
             textToSpeech.stop();
         }
         else {
-            speak("Speech Recognition Failed. Try Again");
+            speak("Didn't understand what you said, try again.");
+            textView.setText("Didn't understand what you said, try again.");
         }
     }
 
@@ -272,11 +276,11 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
                     cameraView.setFlash(CameraKit.Constants.FLASH_ON);
                     // Capture picture
                     cameraView.captureImage();
+                    // Turn flash ON
+                    cameraView.setFlash(CameraKit.Constants.FLASH_OFF);
                 }
                 else
                 {
-                    // Turn flash OFF
-                    cameraView.setFlash(CameraKit.Constants.FLASH_OFF);
                     // Capture picture
                     cameraView.captureImage();
                 }
@@ -292,19 +296,17 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
         Bitmap bitmap = cameraKitImage.getBitmap();
         bitmap = Bitmap.createScaledBitmap(bitmap, cameraView.getWidth(), cameraView.getHeight(), false);
 
-        if (!speech_recog) {
-            // Stop camera preview while recognition is happening
-            cameraView.stop();
-        }
-
-        // make send button visible
-        sendButton.setVisibility(View.VISIBLE);
-
         // Get selected Menu Option ID
         int number = bottomNavigationView.getSelectedItemId();
 
         // Depending on selected option, we run the corresponding API
         if(!speech_recog) {
+            // Stop camera preview while recognition is happening
+            cameraView.stop();
+
+            // make send button visible
+            sendButton.setVisibility(View.VISIBLE);
+
             switch (number) {
                 // if item selected is text, then run text recognition
                 case R.id.navigation_text:
@@ -324,27 +326,24 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
                     break;
             }
         }
-        else{
+        else {
             if (voice_text_recog){
                 recognizer.runTextRecognition(bitmap);
-                speech_recog = false;
                 voice_text_recog = false;
             }
             else if(voice_scene_recog){
                 recognizer.runSceneRecognition(bitmap);
-                speech_recog = false;
                 voice_scene_recog = false;
             }
             else if(voice_object_recog){
                 recognizer.runObjectRecognition(bitmap);
-                speech_recog = false;
                 voice_object_recog = false;
             }
             else if(voice_color_recog){
                 recognizer.runColorRecognition(bitmap);
-                speech_recog = false;
                 voice_color_recog = false;
             }
+            speech_recog = false;
         }
     }
 

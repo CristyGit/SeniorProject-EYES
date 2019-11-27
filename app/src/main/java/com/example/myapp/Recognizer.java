@@ -106,7 +106,6 @@ public class Recognizer
                             @Override
                             public void onClick(View v)
                             {
-                                mainActivity.speak("sending text recognition to contact");
                                 sendImageToContact(bitmap, resultText);
                             }
                         });
@@ -157,7 +156,6 @@ public class Recognizer
             // When button is pressed, share image and text with contact
             @Override
             public void onClick(View v) {
-                mainActivity.speak("sending scene recognition to contact");
                 sendImageToContact(bitmap, visionTask.resultString);
             }
         });
@@ -172,20 +170,11 @@ public class Recognizer
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
 
         // Create an Async task for object recognition
-        ObjectRecognitionTask<byte[], String, String> visionTask = new ObjectRecognitionTask(mainActivity);
+        AsyncTask<byte[], String, String> visionTask = new ObjectRecognitionTask(mainActivity);
 
         // Execute Async task and send image to task
         // Request API and display progress dialog in UI at the same time
         visionTask.execute(outputStream.toByteArray());
-
-        sendButton.setOnClickListener(new View.OnClickListener() {
-            // When button is pressed, share image and text with contact
-            @Override
-            public void onClick(View v) {
-                mainActivity.speak("sending object to contact");
-                sendImageToContact(bitmap, visionTask.resultString);
-            }
-        });
     }
 
     // Google Image Labels API (2ND CHOICE)
@@ -245,19 +234,10 @@ public class Recognizer
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
 
         // Create an Async task for color recognition
-        ColorRecognitionTask<byte[], String, String> visionTask = new ColorRecognitionTask(mainActivity);
+        AsyncTask<byte[], String, String> visionTask = new ColorRecognitionTask(mainActivity);
 
         // Execute Async task and send image to task
         // Request API and display progress dialog in UI at the same time
         visionTask.execute(outputStream.toByteArray());
-
-        sendButton.setOnClickListener(new View.OnClickListener() {
-            // When button is pressed, share image and text with contact
-            @Override
-            public void onClick(View v) {
-                mainActivity.speak("sending color recognition to contact");
-                sendImageToContact(bitmap, visionTask.resultString);
-            }
-        });
     }
 }
