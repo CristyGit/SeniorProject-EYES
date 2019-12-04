@@ -170,11 +170,19 @@ public class Recognizer
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
 
         // Create an Async task for object recognition
-        AsyncTask<byte[], String, String> visionTask = new ObjectRecognitionTask(mainActivity);
+        ObjectRecognitionTask<byte[], String, String> visionTask = new ObjectRecognitionTask(mainActivity);
 
         // Execute Async task and send image to task
         // Request API and display progress dialog in UI at the same time
         visionTask.execute(outputStream.toByteArray());
+
+        sendButton.setOnClickListener(new View.OnClickListener() {
+            // When button is pressed, share image and text with contact
+            @Override
+            public void onClick(View v) {
+                sendImageToContact(bitmap, visionTask.resultString);
+            }
+        });
     }
 
     // Google Image Labels API (2ND CHOICE)
@@ -234,10 +242,18 @@ public class Recognizer
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
 
         // Create an Async task for color recognition
-        AsyncTask<byte[], String, String> visionTask = new ColorRecognitionTask(mainActivity);
+        ColorRecognitionTask<byte[], String, String> visionTask = new ColorRecognitionTask(mainActivity);
 
         // Execute Async task and send image to task
         // Request API and display progress dialog in UI at the same time
         visionTask.execute(outputStream.toByteArray());
+
+        sendButton.setOnClickListener(new View.OnClickListener() {
+            // When button is pressed, share image and text with contact
+            @Override
+            public void onClick(View v) {
+                sendImageToContact(bitmap, visionTask.resultString);
+            }
+        });
     }
 }

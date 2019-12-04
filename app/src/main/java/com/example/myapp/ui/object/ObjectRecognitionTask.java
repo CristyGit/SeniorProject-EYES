@@ -22,7 +22,7 @@ import java.net.URL;
 
 // This class allows you to perform background operations and publish results on the UI thread
 // Basically it shows the progress dialog meanwhile object recognition API is recognizing
-public class ObjectRecognitionTask extends AsyncTask<byte[], String, String>
+public class ObjectRecognitionTask<X,Y,Z>  extends AsyncTask<byte[], String, String>
 {
     // Main Activity Class Object
     private MainActivity mainActivity;
@@ -30,6 +30,8 @@ public class ObjectRecognitionTask extends AsyncTask<byte[], String, String>
     private ProgressDialog progressDialog;
 
     TextView textView;
+
+    public String resultString;
 
     // API key
     private final String API_KEY = BuildConfig.ApiKey;
@@ -177,7 +179,7 @@ public class ObjectRecognitionTask extends AsyncTask<byte[], String, String>
                 recognitionText = "No Objects Recognized";
                 textView.setText("No Objects Recognized");
             }
-
+            resultString = recognitionText;
             // Sends text to Text to speech
             mainActivity.speak(recognitionText);
         }
