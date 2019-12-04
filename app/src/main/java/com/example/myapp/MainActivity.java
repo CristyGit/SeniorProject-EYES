@@ -11,6 +11,7 @@ import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -45,6 +46,7 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
     private Button sendButton;
     private Button speechButton;
     private TextView textView;
+    private Switch flashSwitch;
 
     // Text to Speech Element
     private TextToSpeech textToSpeech;
@@ -71,9 +73,12 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
     private void initUI()
     {
         setContentView(R.layout.activity_main);
+
         sendButton = findViewById(R.id.send_button);
+        flashSwitch = findViewById(R.id.flashSwitch);
         textView = findViewById(R.id.txt_result);
         speechButton = findViewById(R.id.speech_button);
+
         speechButton.setOnClickListener((view -> {
             Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
             intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
@@ -83,9 +88,95 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
                 textToSpeech.stop();
             }
         }));
+
         initNav();
         initCamera();
         initializeSpeechRecognizer();
+    }
+
+    // Initialize Navigation Bar
+    private void initNav()
+    {
+        bottomNavigationView = findViewById(R.id.nav_view);
+        // Identifying each menu choice
+        AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
+                R.id.navigation_text, R.id.navigation_scene, R.id.navigation_object, R.id.navigation_color)
+                .build();
+        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
+        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
+        NavigationUI.setupWithNavController(bottomNavigationView, navController);
+    }
+
+    // Initialize Camera and Button. When button is pressed logic
+    private void initCamera()
+    {
+        cameraButton = findViewById(R.id.cameraBtn);
+        cameraView = findViewById(R.id.camView);
+
+        // Button Listener;
+        cameraButton.setOnClickListener(new View.OnClickListener()
+        {
+            // When button is pressed, image is capture.
+            // It also stops text to speech if available
+            // Removes send button if needed.
+            // Change camera button's text
+            // if color recognition is selected, set flash to on
+            @Override
+            public void onClick(View v)
+            {
+                // check if speech still there, if it is stop it
+                if (textToSpeech != null)
+                {
+                    textToSpeech.stop();
+                }
+
+                // check if send button is there, if it is remove it
+                if(sendButton.getVisibility() == View.VISIBLE)
+                {
+                    sendButton.setVisibility(View.INVISIBLE);
+                }
+
+                // Start camera view
+                cameraView.start();
+
+                // if button is stop, change text
+                if (cameraButton.getText().equals("Stop"))
+                {
+                    cameraButton.setText("Recognize");
+                }
+                else // else change it to stop
+                {
+                    cameraButton.setText("Stop");
+                }
+
+                if (flashSwitch.isChecked())
+                {
+                    // Turn flash ON
+                    cameraView.setFlash(CameraKit.Constants.FLASH_ON);
+                }
+                else
+                {
+                    // Turn flash FF
+                    cameraView.setFlash(CameraKit.Constants.FLASH_OFF);
+                }
+                // Capture picture
+                cameraView.captureImage();
+            }
+        });
+    }
+
+    // Initialize Recognition Elements: text to speech, recognizers (APIs) and Camera Listener
+    private void initRecognitionElements()
+    {
+        initTextToSpeech();
+        recognizer = new Recognizer(this);
+        cameraView.addCameraKitListener(this);
+    }
+
+    // Initialize Text to Speech
+    private void initTextToSpeech()
+    {
+        textToSpeech = new TextToSpeech(this, this);
     }
 
     private void initializeSpeechRecognizer() {
@@ -144,7 +235,17 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
     private void processResult(String command) {
         command = command.toLowerCase();
 
-//        Log.d(command, "Speech recognized this " + command);
+        // Check if switch is on or off
+        if (flashSwitch.isChecked())
+        {
+            // Turn flash ON
+            cameraView.setFlash(CameraKit.Constants.FLASH_ON);
+        }
+        else
+        {
+            // Turn flash FF
+            cameraView.setFlash(CameraKit.Constants.FLASH_OFF);
+        }
 
         speech_recog = true;
 
@@ -162,130 +263,26 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
             cameraView.captureImage();
         } else if (command.contains("color")) {
             voice_color_recog = true;
-            // Turn flash ON
-            cameraView.setFlash(CameraKit.Constants.FLASH_ON);
             // Capture picture
             cameraView.captureImage();
-            // Turn flash ON
-            cameraView.setFlash(CameraKit.Constants.FLASH_OFF);
         }
         else if (command.contains("stop")) {
             textToSpeech.stop();
+        }
+        else if (command.contains("turn flash on")) {
+            // Turn flash ON
+            cameraView.setFlash(CameraKit.Constants.FLASH_ON);
+            flashSwitch.setChecked(true);
+        }
+        else if (command.contains("turn flash off")) {
+            // Turn flash FF
+            cameraView.setFlash(CameraKit.Constants.FLASH_OFF);
+            flashSwitch.setChecked(false);
         }
         else {
             speak("Didn't understand what you said, try again.");
             textView.setText("Didn't understand what you said, try again.");
         }
-    }
-
-
- /*   private void startSpeechRecog() {
-        speechButton = findViewById(R.id.speech_button);
-        speechButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                cameraView.captureImage();
-
-                startVoiceRecognitionActivity();
-            }
-        });
-    }*/
-
-   /* private void startVoiceRecognitionActivity() {
-        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        intent.putExtra(RecognizerIntent.EXTRA_PROMPT,
-                "What type of recognition would you like?");
-        startActivityForResult(intent, VOICE_RECOGNITION_REQUEST_CODE);
-    }
-
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == VOICE_RECOGNITION_REQUEST_CODE && resultCode == RESULT_OK) {
-            ArrayList<String> results = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-            speech_recog = true;
-
-
-            super.onActivityResult(requestCode, resultCode, data);
-
-        }
-    }*/
-
-    // Initialize Navigation Bar
-    private void initNav()
-    {
-        bottomNavigationView = findViewById(R.id.nav_view);
-        // Identifying each menu choice
-        AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.navigation_text, R.id.navigation_scene, R.id.navigation_object, R.id.navigation_color)
-                .build();
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
-        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
-        NavigationUI.setupWithNavController(bottomNavigationView, navController);
-    }
-
-    // Initialize Camera and Button. When button is pressed logic
-    private void initCamera()
-    {
-        cameraButton = findViewById(R.id.cameraBtn);
-        cameraView = findViewById(R.id.camView);
-
-        // Button Listener;
-        cameraButton.setOnClickListener(new View.OnClickListener()
-        {
-            // When button is pressed, image is capture.
-            // It also stops text to speech if available
-            // Removes send button if needed.
-            // Change camera button's text
-            // if color recognition is selected, set flash to on
-            @Override
-            public void onClick(View v)
-            {
-                // check if speech still there, if it is stop it
-                if (textToSpeech != null)
-                {
-                    textToSpeech.stop();
-                }
-
-                // check if send button is there, if it is remove it
-                if(sendButton.getVisibility() == View.VISIBLE)
-                {
-                    sendButton.setVisibility(View.INVISIBLE);
-                }
-
-                // Start camera view
-                cameraView.start();
-
-                // if button is stop, change text
-                if (cameraButton.getText().equals("Stop"))
-                {
-                    cameraButton.setText("Recognize");
-                }
-                else // else change it to stop
-                {
-                    cameraButton.setText("Stop");
-                }
-
-                // Get selected Menu Option ID
-                int number = bottomNavigationView.getSelectedItemId();
-
-                // If color recognition is selected turn on flash
-                if (number == R.id.navigation_color)
-                {
-                    // Turn flash ON
-                    cameraView.setFlash(CameraKit.Constants.FLASH_ON);
-                    // Capture picture
-                    cameraView.captureImage();
-                    // Turn flash ON
-                    cameraView.setFlash(CameraKit.Constants.FLASH_OFF);
-                }
-                else
-                {
-                    // Capture picture
-                    cameraView.captureImage();
-                }
-            }
-        });
     }
 
     // On Image taken, Convert it to a bitmap and run the corresponding API
@@ -347,19 +344,7 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
         }
     }
 
-    // Initialize Recognition Elements: text to speech, recognizers (APIs) and Camera Listener
-    private void initRecognitionElements()
-    {
-        initTextToSpeech();
-        recognizer = new Recognizer(this);
-        cameraView.addCameraKitListener(this);
-    }
 
-    // Initialize Text to Speech
-    private void initTextToSpeech()
-    {
-        textToSpeech = new TextToSpeech(this, this);
-    }
 
     // Initialize Text to Speech
     @Override
