@@ -9,11 +9,14 @@ import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 import androidx.navigation.NavController;
@@ -76,6 +79,20 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
 
         sendButton = findViewById(R.id.send_button);
         flashSwitch = findViewById(R.id.flashSwitch);
+
+        flashSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked)
+                {
+                    speak("flash on");
+                }
+                else
+                {
+                    speak("flash off");
+                }
+            }
+        });
+
         textView = findViewById(R.id.txt_result);
         speechButton = findViewById(R.id.speech_button);
 
@@ -105,6 +122,14 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(bottomNavigationView, navController);
+
+        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                speak(item.toString());
+                return true;
+            }
+        });
     }
 
     // Initialize Camera and Button. When button is pressed logic
@@ -142,10 +167,13 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
                 // if button is stop, change text
                 if (cameraButton.getText().equals("Stop"))
                 {
+                    speak("Stop Recognition");
                     cameraButton.setText("Recognize");
+                    speechButton.setVisibility(View.VISIBLE);
                 }
                 else // else change it to stop
                 {
+                    speak("Recognizing");
                     cameraButton.setText("Stop");
                 }
 
@@ -156,7 +184,7 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
                 }
                 else
                 {
-                    // Turn flash FF
+                    // Turn flash OFF
                     cameraView.setFlash(CameraKit.Constants.FLASH_OFF);
                 }
                 // Capture picture
@@ -269,17 +297,20 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
         else if (command.contains("stop")) {
             textToSpeech.stop();
         }
-        else if (command.contains("turn flash on")) {
+        else if (command.contains("flash") && command.contains("on")) {
+            speech_recog = false;
             // Turn flash ON
             cameraView.setFlash(CameraKit.Constants.FLASH_ON);
             flashSwitch.setChecked(true);
         }
-        else if (command.contains("turn flash off")) {
+        else if (command.contains("flash") && command.contains("off")) {
+            speech_recog = false;
             // Turn flash FF
             cameraView.setFlash(CameraKit.Constants.FLASH_OFF);
             flashSwitch.setChecked(false);
         }
         else {
+            speech_recog = false;
             speak("Didn't understand what you said, try again.");
             textView.setText("Didn't understand what you said, try again.");
         }
@@ -300,6 +331,8 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
         if(!speech_recog) {
             // Stop camera preview while recognition is happening
             cameraView.stop();
+
+            speechButton.setVisibility(View.INVISIBLE);
 
             // make send button visible
             sendButton.setVisibility(View.VISIBLE);
@@ -343,8 +376,6 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
             speech_recog = false;
         }
     }
-
-
 
     // Initialize Text to Speech
     @Override
