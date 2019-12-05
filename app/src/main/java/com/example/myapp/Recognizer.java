@@ -106,6 +106,7 @@ public class Recognizer
                             @Override
                             public void onClick(View v)
                             {
+                                mainActivity.speak("sending text recognition to contact");
                                 sendImageToContact(bitmap, resultText);
                             }
                         });
@@ -156,6 +157,7 @@ public class Recognizer
             // When button is pressed, share image and text with contact
             @Override
             public void onClick(View v) {
+                mainActivity.speak("sending scene recognition to contact");
                 sendImageToContact(bitmap, visionTask.resultString);
             }
         });
@@ -180,6 +182,7 @@ public class Recognizer
             // When button is pressed, share image and text with contact
             @Override
             public void onClick(View v) {
+                mainActivity.speak("sending object to contact");
                 sendImageToContact(bitmap, visionTask.resultString);
             }
         });
@@ -252,6 +255,7 @@ public class Recognizer
             // When button is pressed, share image and text with contact
             @Override
             public void onClick(View v) {
+                mainActivity.speak("sending color recognition to contact");
                 sendImageToContact(bitmap, visionTask.resultString);
             }
         });
