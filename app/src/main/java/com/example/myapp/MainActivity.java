@@ -9,7 +9,9 @@ import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -19,6 +21,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
+import androidx.core.view.GestureDetectorCompat;
+import androidx.core.view.MotionEventCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -50,6 +54,7 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
     private Button speechButton;
     private TextView textView;
     private Switch flashSwitch;
+    private GestureDetectorCompat mDetector;
 
     // Text to Speech Element
     private TextToSpeech textToSpeech;
@@ -57,6 +62,7 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
     private Recognizer recognizer;
 
     private SpeechRecognizer mySpeechRecognizer;
+    private static final String DEBUG_TAG = "Gestures";
     private boolean speech_recog = false;
     private boolean voice_text_recog = false;
     private boolean voice_scene_recog = false;
@@ -72,11 +78,13 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
         initRecognitionElements();
     }
 
+
+
     // Initialize Main Activity View, Navigation Bar,send button, and Camera.
     private void initUI()
     {
         setContentView(R.layout.activity_main);
-
+        //mDetector = new GestureDetectorCompat(this, new MyGestureListener());
         sendButton = findViewById(R.id.send_button);
         flashSwitch = findViewById(R.id.flashSwitch);
 
@@ -111,6 +119,35 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
         initializeSpeechRecognizer();
     }
 
+//    @Override
+//    public boolean onTouchEvent(MotionEvent event){
+//        this.mDetector.onTouchEvent(event);
+//        return super.onTouchEvent(event);
+//    }
+//
+//    class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
+//        private static final String DEBUG_TAG = "Gestures";
+//
+//        @Override
+//        public boolean onDown(MotionEvent event) {
+//            Log.d("gesture", "down");
+//            return true;
+//        }
+//
+//        @Override
+//        public boolean onDoubleTap(MotionEvent event) {
+//            Log.d("gesture", "down");
+//            return true;
+//        }
+//
+//        @Override
+//        public boolean onFling(MotionEvent event1, MotionEvent event2,
+//                               float velocityX, float velocityY) {
+//            Log.d("gesture", "down");
+//            return true;
+//        }
+//    }
+
     // Initialize Navigation Bar
     private void initNav()
     {
@@ -119,8 +156,9 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.navigation_text, R.id.navigation_scene, R.id.navigation_object, R.id.navigation_color)
                 .build();
+
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
-        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
+        //NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(bottomNavigationView, navController);
 
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -130,6 +168,7 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
                 return true;
             }
         });
+
     }
 
     // Initialize Camera and Button. When button is pressed logic
@@ -137,6 +176,26 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
     {
         cameraButton = findViewById(R.id.cameraBtn);
         cameraView = findViewById(R.id.camView);
+
+        cameraView.setOnTouchListener(new View.OnTouchListener() {
+          private GestureDetector gestureDetector = new GestureDetector(MainActivity.this, new GestureDetector.SimpleOnGestureListener() {
+              @Override
+              public void onLongPress(MotionEvent e) {
+                  Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+                  intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                          RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+                  mySpeechRecognizer.startListening(intent);
+                  if (textToSpeech != null) {
+                      textToSpeech.stop();
+                  }
+              }
+          });
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                gestureDetector.onTouchEvent(event);
+                return true;
+            }
+      });
 
         // Button Listener;
         cameraButton.setOnClickListener(new View.OnClickListener()
@@ -400,6 +459,10 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
         {
             Log.i("Initialization", "Text to speech was initialized.");
         }
+        speak("Welcome! I can recognize texts, scenes, objects, or colors. Just press the buttons to " +
+                "interact with me or long press the screen to activate speech recognition and say " +
+                "which recognition you want to do.");
+
     }
 
     // Text to Speech: Receives a String, converts it to speech
@@ -432,7 +495,7 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
             // compress bitmap into stream
             image.compress(Bitmap.CompressFormat.PNG, 90, stream);
 
-            // flush aand close stream
+            // flush and close stream
             stream.flush();
             stream.close();
 
@@ -454,6 +517,7 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
         super.onResume();
         cameraView.start();
         cameraButton.setText("Recognize");
+        speechButton.setVisibility(View.VISIBLE);
     }
 
     // When Activity is Paused, stop the camera and text to speech, hide send button

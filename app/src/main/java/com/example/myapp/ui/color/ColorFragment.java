@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
+import com.example.myapp.MainActivity;
 import com.example.myapp.R;
 import com.example.myapp.ui.color.ColorViewModel;
 

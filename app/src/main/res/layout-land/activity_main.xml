@@ -91,7 +91,7 @@
         android:layout_height="252dp"
         android:layout_marginBottom="32dp"
         android:fontFamily="sans-serif-smallcaps"
-        android:text="Menu Interface:\nSelect type of recognition and then press the middle RECOGNIZE button.\nVoice/Command Interface:\nPress the RED Mic button (on the right of the screen) and said which recognition you want to perform (text, scene, object, color)."
+        android:text="Menu Interface:\nSelect type of recognition and then press the middle RECOGNIZE button.\nVoice/Command Interface:\nPress the RED mic button or Long press the screen to activate speech recognition, then said which recognition you want to perform (text, scene, object, color)."
         android:textAlignment="center"
         android:textSize="24sp"
         app:layout_constraintBottom_toTopOf="@+id/nav_view"
