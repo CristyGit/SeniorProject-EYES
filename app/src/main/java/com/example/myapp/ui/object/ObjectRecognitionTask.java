@@ -9,6 +9,7 @@ import android.widget.Toast;
 import com.example.myapp.BuildConfig;
 import com.example.myapp.MainActivity;
 import com.example.myapp.R;
+import com.example.myapp.Recognizer;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -26,6 +27,8 @@ public class ObjectRecognitionTask<X,Y,Z>  extends AsyncTask<byte[], String, Str
 {
     // Main Activity Class Object
     private MainActivity mainActivity;
+    // Recognizer Class Object
+    private Recognizer reconizer;
     // Progress Popup
     private ProgressDialog progressDialog;
 
