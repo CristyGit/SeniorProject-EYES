@@ -78,8 +78,6 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
         initRecognitionElements();
     }
 
-
-
     // Initialize Main Activity View, Navigation Bar,send button, and Camera.
     private void initUI()
     {
