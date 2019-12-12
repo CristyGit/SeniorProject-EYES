@@ -20,8 +20,8 @@ public class ExampleUnitTest {
     }
 
     @Test
-    public void validatingImage()
+    public static void validatingImage()
     {
-
+        
     }
 }
