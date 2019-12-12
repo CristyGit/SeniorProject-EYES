@@ -4,8 +4,6 @@ The proposed idea for senior project is to develop an accessible app for the vis
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
-
 ### Prerequisites
 
 - Android Studio 3.5
@@ -18,62 +16,16 @@ These instructions will get you a copy of the project up and running on your loc
 - Google Speech Recognizer
 - Camera Kit
 
-```
-Give examples
-```
-
 ### Installing
 
-A step by step series of examples that tell you how to get a development env running
-
-Say what the step will be
-
-```
-Give the example
-```
-
-And repeat
-
-```
-until finished
-```
-
-End with an example of getting some data out of the system or using it for a little demo
-
-## Running the tests
-
-Explain how to run the automated tests for this system
-
-### Break down into end to end tests
-
-Explain what these tests test and why
-
-```
-Give an example
-```
-
-### And coding style tests
-
-Explain what these tests test and why
-
-```
-Give an example
-```
-
-## Deployment
-
-Add additional notes about how to deploy this on a live system
-
-## Built With
-
-* [Dropwizard](http://www.dropwizard.io/1.0.2/docs/) - The web framework used
-* [Maven](https://maven.apache.org/) - Dependency Management
-* [ROME](https://rometools.github.io/rome/) - Used to generate RSS Feeds
+Installation would normally be done by downloading the application through the Google Play Store. If the application does not yet exist on the Google Play Store under the name “EYES”, then you will need to add the APK (Android Application Package) file to your device. The APK can be obtained by building the project with the android device of your choosing as the target.
+To install an APK on your android device, you must have already enabled Developer Mode on your device. Instructions for each android version exist at the following link: (https://developer.android.com/studio/debug/dev-options)
+Once developer mode has been enabled, the APK file can be selected and installed on the device. Before running the application, be sure to go into the app info and activate the required permissions. The application should prompt you to do so, but this helps speed up the process of testing the newly installed APK. 
 
 ## Authors
 
 * **Cristina Villarroel** - *Lead Developer* - [cristyevr94](https://github.com/cristyevr94)
-* **Antonio Valdes** - *Developer*
+* **Antonio Valdes** - *Developer* - [Kirishimas](https://github.com/Kirishimas)
 
 ## License
 
