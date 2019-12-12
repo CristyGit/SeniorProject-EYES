@@ -119,35 +119,6 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
         initializeSpeechRecognizer();
     }
 
-//    @Override
-//    public boolean onTouchEvent(MotionEvent event){
-//        this.mDetector.onTouchEvent(event);
-//        return super.onTouchEvent(event);
-//    }
-//
-//    class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
-//        private static final String DEBUG_TAG = "Gestures";
-//
-//        @Override
-//        public boolean onDown(MotionEvent event) {
-//            Log.d("gesture", "down");
-//            return true;
-//        }
-//
-//        @Override
-//        public boolean onDoubleTap(MotionEvent event) {
-//            Log.d("gesture", "down");
-//            return true;
-//        }
-//
-//        @Override
-//        public boolean onFling(MotionEvent event1, MotionEvent event2,
-//                               float velocityX, float velocityY) {
-//            Log.d("gesture", "down");
-//            return true;
-//        }
-//    }
-
     // Initialize Navigation Bar
     private void initNav()
     {
@@ -390,7 +361,7 @@ public class MainActivity extends AppCompatActivity implements CameraKitEventLis
         if(!speech_recog) {
             // Stop camera preview while recognition is happening
             cameraView.stop();
-
+            // Hide the speech button
             speechButton.setVisibility(View.INVISIBLE);
 
             // make send button visible

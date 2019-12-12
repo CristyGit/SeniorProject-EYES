@@ -1,6 +1,6 @@
 # EYES
 
-The proposed idea for senior project is to develop an app for the visually impaired to help them navigate and virtually “see” the world around them. The app would aim have the following features: Text recognition, Object recognition, Scene recognition and Color Recognition.
+The proposed idea for senior project is to develop an accessible app for the visually impaired to help them navigate and virtually “see” the world around them. The app would aim have the following features: Text recognition, Object recognition, Scene recognition and Color Recognition.
 
 ## Getting Started
 
@@ -8,10 +8,15 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-- Android Studio
+- Android Studio 3.5
 - Java
-- Android Phone with API Level ...
-- Maven
+- Gradle
+- Android Phone with API Level 21
+- Google Firebase ML Kit
+- Microsoft Computer Vision
+- Google Text-to-Speech
+- Google Speech Recognizer
+- Camera Kit
 
 ```
 Give examples
@@ -70,15 +75,10 @@ Add additional notes about how to deploy this on a live system
 * **Cristina Villarroel** - *Lead Developer* - [cristyevr94](https://github.com/cristyevr94)
 * **Antonio Valdes** - *Developer*
 
-
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
-
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
 
 ## Acknowledgments
 
-* Hat tip to anyone whose code was used
-* Inspiration
-* etc
+* Thanks to Dr. Francisco Ortega for all his support.
